@@ -1,52 +1,49 @@
-# Prerequisites
-*.d
-
-# Object files
-*.o
-*.ko
-*.obj
-*.elf
-
-# Linker output
-*.ilk
-*.map
-*.exp
-
-# Precompiled Headers
-*.gch
-*.pch
-
-# Libraries
-*.lib
-*.a
-*.la
-*.lo
-
-# Shared objects (inc. Windows DLLs)
-*.dll
-*.so
-*.so.*
-*.dylib
-
-# Executables
-*.exe
+trace_test
+activate
+out
 *.out
-*.app
-*.i*86
-*.x86_64
-*.hex
-
-# Debug files
-*.dSYM/
-*.su
-*.idb
-*.pdb
-
-# Kernel Module Compile Results
-*.mod*
-*.cmd
-.tmp_versions/
-modules.order
-Module.symvers
-Mkfile.old
-dkms.conf
+*.db
+.gdbinit
+.gdbinitkernel
+.gdbinitframework
+.gdbinitapp
+.openocd_cfg
+copy_bootloader_output_for_eclipse
+copy_output_for_eclipse
+*.sw*
+build/compiler
+build/OpenOCD
+si
+.cproject
+.project
+*.pyc
+aos_partition_*.bin
+OSX
+example/flash/flash.mk
+example/flash/main.c
+example/flash/README.md
+settings.json
+build/cmd/win32/Python27/Lib/encodings/*.pyc
+*.d
+build/scripts/config_mk.py
+build/scripts/*.pyc
+$Recycle.Bin
+.sconsign.dblite
+cb2201*.map
+projects/autogen/*
+# source sight project files
+*.IAB
+*.IAD
+*.IMB
+*.IMD
+*.PFI
+*.PO
+*.PR
+*.PRI
+*.PS
+*.SearchResults
+*.WK3
+.DS_Store
+.config
+.config.cmd
+.defconfig
