@@ -15,7 +15,7 @@ detail for how to implement these two functions.
 
 #include <k_api.h>
 
-#if (RHINO_CONFIG_CPU_PWR_MGMT > 0)
+#if (RHINO_CONFIG_PWRMGMT > 0)
 
 
 void systick_suspend(void)
@@ -25,5 +25,5 @@ void systick_suspend(void)
 void systick_resume(void)
 {
 }
-#endif /* RHINO_CONFIG_CPU_PWR_MGMT */
+#endif /* RHINO_CONFIG_PWRMGMT */
 

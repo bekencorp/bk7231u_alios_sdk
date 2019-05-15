@@ -81,11 +81,12 @@ $(NAME)_SOURCES += hal/pwrmgmt_hal/board_cpu_pwr.c \
 $(NAME)_PREBUILT_LIBRARY += beken/ip/ip.a
 
 #Beken BLE
-GLOBAL_DEFINES  += CFG_SUPPORT_BLE
-GLOBAL_INCLUDES += beken/driver/ble/rw_ble/ip/ble/profiles/AIS/api
-$(NAME)_SOURCES += hal/ble.c
-$(NAME)_SOURCES += hal/breeze_hal_os.c
-$(NAME)_PREBUILT_LIBRARY += beken/driver/ble/ble.a
+btstack := vendor
+GLOBAL_DEFINES  += CFG_SUPPORT_BLE BLE_4_2
+$(NAME)_SOURCES += hal/breeze_hal/breeze_hal_ble.c
+$(NAME)_SOURCES += hal/breeze_hal/breeze_hal_os.c
+$(NAME)_SOURCES += hal/breeze_hal/breeze_hal_sec.c
+$(NAME)_PREBUILT_LIBRARY += beken/driver/ble/ble_lib/ble_lib.a
 
 #Beken entry
 $(NAME)_COMPONENTS += entry

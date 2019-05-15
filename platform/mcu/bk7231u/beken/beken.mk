@@ -17,6 +17,7 @@ $(NAME)_INCLUDES += $(BEKEN_DIR)/app/standalone-ap \
                     $(BEKEN_DIR)/func/sdio_intf \
                     $(BEKEN_DIR)/func/power_save \
 					$(BEKEN_DIR)/func/temp_detect \
+					$(BEKEN_DIR)/func/saradc_intf \
                     $(BEKEN_DIR)/func/spidma_intf \
                     $(BEKEN_DIR)/func/ethernet_intf \
                     $(BEKEN_DIR)/func/rwnx_intf \
@@ -105,6 +106,7 @@ $(NAME)_SOURCES +=  $(BEKEN_DIR)/app/app.c \
                     $(BEKEN_DIR)/func/sim_uart/pwm_uart.c \
                     $(BEKEN_DIR)/func/spidma_intf/spidma_intf.c \
                     $(BEKEN_DIR)/func/temp_detect/temp_detect.c \
+					$(BEKEN_DIR)/func/saradc_intf/saradc_intf.c \
                     $(BEKEN_DIR)/func/uart_debug/cmd_evm.c \
                     $(BEKEN_DIR)/func/uart_debug/cmd_help.c \
                     $(BEKEN_DIR)/func/uart_debug/cmd_reg.c \
@@ -203,3 +205,151 @@ $(NAME)_SOURCES +=  $(BEKEN_DIR)/func/hostapd-2.5/src/crypto/crypto_ali.c \
                     $(BEKEN_DIR)/alios/lwip-2.0.2/port/net.c \
                     $(BEKEN_DIR)/alios/os/mem_arch.c \
                     $(BEKEN_DIR)/alios/os/str_arch.c
+
+$(NAME)_INCLUDES += $(BEKEN_DIR)/driver/ble \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/modules/rwip/api \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/ip/ble/profiles/ancs/ancsc/api \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/ip/ble/profiles/ancs \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/ip/ble/profiles/anp/anpc/api \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/ip/ble/profiles/anp/anpc/src \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/ip/ble/profiles/anp/anps/api \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/ip/ble/profiles/anp/anps/src \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/ip/ble/profiles/anp \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/ip/ble/profiles/bas/basc/api \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/ip/ble/profiles/bas/basc/src \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/ip/ble/profiles/bas/bass/api \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/ip/ble/profiles/bas/bass/src \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/ip/ble/profiles/blp/blpc/api \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/ip/ble/profiles/blp/blpc/src \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/ip/ble/profiles/blp/blps/api \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/ip/ble/profiles/blp/blps/src \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/ip/ble/profiles/blp \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/ip/ble/profiles/cpp/cppc/api \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/ip/ble/profiles/cpp/cppc/src \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/ip/ble/profiles/cpp/cpps/api \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/ip/ble/profiles/cpp/cpps/src \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/ip/ble/profiles/cpp \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/ip/ble/profiles/cscp/cscpc/api \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/ip/ble/profiles/cscp/cscpc/src \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/ip/ble/profiles/cscp/cscps/api \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/ip/ble/profiles/cscp/cscps/src \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/ip/ble/profiles/cscp \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/ip/ble/profiles/dis/disc/api \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/ip/ble/profiles/dis/disc/src \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/ip/ble/profiles/dis/diss/api \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/ip/ble/profiles/dis/diss/src \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/ip/ble/profiles/FFE0/api \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/ip/ble/profiles/FFE0/api \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/ip/ble/profiles/FFF0/api \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/ip/ble/profiles/FFF0/api \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/ip/ble/profiles/AIS/api \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/ip/ble/profiles/media/api \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/ip/ble/profiles/btl/api \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/ip/ble/profiles/suning/api \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/ip/ble/profiles/ayla/api \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/ip/ble/profiles/sdp/api \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/ip/ble/profiles/sdp/src \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/modules/app/api \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/modules/app/src \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/modules/ali_sdk/api \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/modules/ali_sdk/src \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/modules/common/api \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/modules/dbg/api \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/modules/rwip/api \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/modules/rf/api \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/modules/media \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/modules/btl \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/modules/suning \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/modules/ayla \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/plf/refip/src/arch \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/plf/refip/src/arch/boot \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/plf/refip/src/arch/compiler \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/plf/refip/src/arch/ll \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/plf/refip/src/arch \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/plf/refip/src/build/ble_full/reg/fw \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/plf/refip/src/driver/reg \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/plf/refip/src/rom/common \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/plf/refip/src/driver/ble_icu \
+                    $(BEKEN_DIR)/driver/ble/ble_lib/ip/ble/ll/src/rwble \
+					$(BEKEN_DIR)/driver/ble/ble_pub/ip/ble/hl/inc \
+                    $(BEKEN_DIR)/driver/ble/ble_lib/ip/ble/hl/inc \
+                    $(BEKEN_DIR)/driver/ble/ble_lib/ip/ble/hl/api \
+                    $(BEKEN_DIR)/driver/ble/ble_lib/modules/ke/api \
+                    $(BEKEN_DIR)/driver/ble/ble_lib/ip/ble/ll/src/lld \
+                    $(BEKEN_DIR)/driver/ble/ble_lib/modules/ke/src \
+                    $(BEKEN_DIR)/driver/ble/ble_lib/ip/em/api \
+                    $(BEKEN_DIR)/driver/ble/ble_lib/ip/hci/api \
+                    $(BEKEN_DIR)/driver/ble/ble_lib/ip/ble/ll/src/em \
+                    $(BEKEN_DIR)/driver/ble/ble_lib/ip/ble/ll/src/llm \
+                    $(BEKEN_DIR)/driver/ble/ble_lib/ip/ea/api \
+                    $(BEKEN_DIR)/driver/ble/ble_lib/ip/ble/ll/src/llc \
+                    $(BEKEN_DIR)/driver/ble/ble_lib/modules/h4tl/api \
+                    $(BEKEN_DIR)/driver/ble/ble_lib/ip/ahi/api \
+                    $(BEKEN_DIR)/driver/ble/ble_lib/ip/ble/hl/src/gatt/atts 
+					
+$(NAME)_SOURCES +=  $(BEKEN_DIR)/driver/ble/ble.c \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/ip/ble/profiles/ancs/ancsc/src/ancsc.c \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/ip/ble/profiles/ancs/ancsc/src/ancsc_task.c \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/ip/ble/profiles/anp/anpc/src/anpc.c \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/ip/ble/profiles/anp/anpc/src/anpc_task.c \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/ip/ble/profiles/anp/anps/src/anps.c \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/ip/ble/profiles/anp/anps/src/anps_task.c \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/ip/ble/profiles/bas/basc/src/basc.c \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/ip/ble/profiles/bas/basc/src/basc_task.c \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/ip/ble/profiles/bas/bass/src/bass.c \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/ip/ble/profiles/bas/bass/src/bass_task.c \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/ip/ble/profiles/blp/blpc/src/blpc.c \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/ip/ble/profiles/blp/blpc/src/blpc_task.c \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/ip/ble/profiles/blp/blps/src/blps.c \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/ip/ble/profiles/blp/blps/src/blps_task.c \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/ip/ble/profiles/cpp/cppc/src/cppc.c \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/ip/ble/profiles/cpp/cppc/src/cppc_task.c \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/ip/ble/profiles/cpp/cpps/src/cpps.c \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/ip/ble/profiles/cpp/cpps/src/cpps_task.c \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/ip/ble/profiles/cscp/cscpc/src/cscpc.c \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/ip/ble/profiles/cscp/cscpc/src/cscpc_task.c \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/ip/ble/profiles/cscp/cscps/src/cscps.c \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/ip/ble/profiles/cscp/cscps/src/cscps_task.c \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/ip/ble/profiles/dis/disc/src/disc.c \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/ip/ble/profiles/dis/disc/src/disc_task.c \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/ip/ble/profiles/dis/diss/src/diss.c \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/ip/ble/profiles/dis/diss/src/diss_task.c \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/ip/ble/profiles/FFE0/src/ffe0s.c \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/ip/ble/profiles/FFE0/src/ffe0s_task.c \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/ip/ble/profiles/FFF0/src/fff0s.c \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/ip/ble/profiles/FFF0/src/fff0s_task.c \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/ip/ble/profiles/AIS/src/AIS.c \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/ip/ble/profiles/AIS/src/AIS_task.c \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/ip/ble/profiles/media/src/ms.c \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/ip/ble/profiles/media/src/ms_task.c \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/ip/ble/profiles/btl/src/btl.c \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/ip/ble/profiles/btl/src/btl_task.c \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/ip/ble/profiles/suning/src/sn.c \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/ip/ble/profiles/suning/src/sn_task.c \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/ip/ble/profiles/ayla/src/ayla.c \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/ip/ble/profiles/ayla/src/ayla_task.c \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/ip/ble/profiles/sdp/src/sdp_service.c \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/ip/ble/profiles/sdp/src/sdp_service_task.c \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/modules/app/src/app.c \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/modules/app/src/app_sdp.c \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/modules/app/src/app_sec.c \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/modules/app/src/app_ffe0.c \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/modules/app/src/app_fff0.c \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/modules/app/src/app_task.c \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/modules/ali_sdk/src/ais_sdk.c \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/modules/media/app_ms.c \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/modules/btl/app_btl.c \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/modules/suning/app_sn.c \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/modules/ayla/app_ayla.c \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/modules/common/src/common_list.c \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/modules/common/src/common_utils.c \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/modules/common/src/RomCallFlash.c \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/modules/dbg/src/dbg.c \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/modules/dbg/src/dbg_mwsgen.c \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/modules/dbg/src/dbg_swdiag.c \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/modules/dbg/src/dbg_task.c \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/modules/rwip/src/rwip.c \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/modules/rf/src/ble_rf_xvr.c \
+                    $(BEKEN_DIR)/driver/ble/ble_pub/plf/refip/src/driver/uart/uart.c \
+					$(BEKEN_DIR)/driver/ble/ble_pub/ip/ble/hl/src/prf/prf.c \
+

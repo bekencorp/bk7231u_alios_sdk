@@ -460,13 +460,11 @@ static int ota_boot(void *something)
 
 static int ota_rollback(void *something)
 {
-	bk_printf("John# ota_rollback.\r\n");
 	return 0;
 }
 
 static const char *ota_get_version(unsigned char dev_type)
 {
-	bk_printf("John# ota_get_version");
 	return SYSINFO_APP_VERSION;
 }
 #else
@@ -578,13 +576,11 @@ static int ota_boot(void *something)
 
 static int ota_rollback(void *something)
 {
-	bk_printf("John# ota_rollback.\r\n");
 	return 0;
 }
 
 static const char *ota_get_version(unsigned char dev_type)
 {
-	bk_printf("John# ota_get_version");
 	return SYSINFO_APP_VERSION;
 }
 #endif

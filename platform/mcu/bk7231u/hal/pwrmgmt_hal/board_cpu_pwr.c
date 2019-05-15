@@ -5,11 +5,11 @@
 
 #include <k_api.h>
 
-#if RHINO_CONFIG_CPU_PWR_MGMT
+#if RHINO_CONFIG_PWRMGMT
 
-#include "cpu_pwr_api.h"
+#include "cpu_pwr_lib.h"
 #include "cpu_pwr_hal_lib.h"
-#include "pwr_debug.h"
+#include "pwrmgmt_debug.h"
 #include "cpu_tickless.h"
 #include "mcu_ps_pub.h"
 
@@ -153,5 +153,5 @@ void cpu_pwr_resume_devices()
 {
 }
 
-#endif /* RHINO_CONFIG_CPU_PWR_MGMT */
+#endif /* RHINO_CONFIG_PWRMGMT */
 

@@ -1,6 +1,8 @@
 #ifndef _BK7011_CAL_PUB_H_
 #define _BK7011_CAL_PUB_H_
 
+#include "typedef.h"
+
 typedef struct tmp_pwr_st {
     UINT8 mod;
     UINT8 pa;

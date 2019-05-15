@@ -38,6 +38,11 @@
 
 #define REG_BLE_XVR_GFSK_SYNCWD_ADDR                 (REG_BLE_XVR_BASE_ADDR + 0x20 * 4)
 
+
+#define REG_BLE_XVR_RADIOON_CONFIG_ADDR              (REG_BLE_XVR_BASE_ADDR + 0x29 * 4)
+
+
+
 UINT32 ble_ctrl( UINT32 cmd, void *param );
 void ble_isr(void);
 

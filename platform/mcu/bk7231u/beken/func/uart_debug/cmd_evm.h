@@ -11,6 +11,7 @@ extern int do_evm(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[]);
 #define EVM_DEFUALT_PACKET_LEN                 (1024)
 #define EVM_DEFUALT_RATE                       (54)
 #define EVM_DEFUALT_B_RATE                     (11)
+#define EVM_DEFUALT_BLE_RATE                (158)
 #define EVM_DEFUALT_CHANNEL                    (6)
 #define EVM_DEFUALT_BLE_CHANNEL                (2)
 #define EVM_DEFUALT_BW                         (0)

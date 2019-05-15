@@ -396,7 +396,7 @@ void sctrl_init(void)
     #endif // CFG_USE_AUDIO
     #endif // (CFG_SOC_NAME == SOC_BK7221U)
 
-	#if (RHINO_CONFIG_CPU_PWR_MGMT & CFG_USE_STA_PS)
+	#if (RHINO_CONFIG_PWRMGMT & CFG_USE_STA_PS)
 	sctrl_mcu_init();
 	#endif
 }

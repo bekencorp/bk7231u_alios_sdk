@@ -261,10 +261,9 @@ void intc_init(void)
     UINT32 param;
 
 #if CFG_SUPPORT_ALIOS
-    *((volatile uint32_t *)0x400000) = 1;
-    *((volatile uint32_t *)0x400004) = &do_irq;
-    *((volatile uint32_t *)0x400008) = &do_fiq;
-    *((volatile uint32_t *)0x40000C) = &do_swi;
+    *((volatile uint32_t *)0x400000) = &do_irq;
+    *((volatile uint32_t *)0x400004) = &do_fiq;
+    *((volatile uint32_t *)0x400008) = &do_swi;
 #endif
     intc_enable(FIQ_MAC_GENERAL);
     intc_enable(FIQ_MAC_PROT_TRIGGER);

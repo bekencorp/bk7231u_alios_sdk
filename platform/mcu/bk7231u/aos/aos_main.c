@@ -161,7 +161,7 @@ static void sys_init(void)
 
     board_init();
 
-#if (RHINO_CONFIG_CPU_PWR_MGMT > 0)
+#if (RHINO_CONFIG_PWRMGMT > 0)
 	cpu_pwrmgmt_init();
 #endif
 
