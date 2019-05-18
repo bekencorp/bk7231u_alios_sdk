@@ -82,7 +82,7 @@ $(NAME)_PREBUILT_LIBRARY += beken/ip/ip.a
 
 #Beken BLE
 btstack := vendor
-GLOBAL_DEFINES  += CFG_SUPPORT_BLE BLE_4_2
+GLOBAL_DEFINES  += BLE_4_2
 $(NAME)_SOURCES += hal/breeze_hal/breeze_hal_ble.c
 $(NAME)_SOURCES += hal/breeze_hal/breeze_hal_os.c
 $(NAME)_SOURCES += hal/breeze_hal/breeze_hal_sec.c

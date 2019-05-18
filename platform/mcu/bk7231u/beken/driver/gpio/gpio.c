@@ -279,14 +279,24 @@ static void gpio_enable_second_function(UINT32 func_mode)
         break;
 
     case GFUNC_MODE_PWM4:
+#if (CFG_SOC_NAME == SOC_BK7231)
         start_index = 18;
         end_index = 18;
+#else
+		start_index = 24;
+		end_index = 24;
+#endif
         pmode = PERIAL_MODE_2;
         break;
 
     case GFUNC_MODE_PWM5:
+#if (CFG_SOC_NAME == SOC_BK7231)
         start_index = 19;
         end_index = 19;
+#else
+		start_index = 26;
+		end_index = 26;
+#endif
         pmode = PERIAL_MODE_2;
         break;
 
@@ -439,6 +449,10 @@ UINT32 gpio_input(UINT32 id)
         WARN_PRT("gpio_input_fail\r\n");
         goto input_exit;
     }
+    #if (CFG_SOC_NAME != SOC_BK7231)
+    if(id >= GPIO32)
+        id += 16;
+    #endif // (CFG_SOC_NAME != SOC_BK7231)
 
     gpio_cfg_addr = (volatile UINT32 *)(REG_GPIO_CFG_BASE_ADDR + id * 4);
     val = REG_READ(gpio_cfg_addr);
@@ -457,7 +471,10 @@ void gpio_output(UINT32 id, UINT32 val)
         WARN_PRT("gpio_output_fail\r\n");
         goto output_exit;
     }
-
+    #if (CFG_SOC_NAME != SOC_BK7231)
+    if(id >= GPIO32)
+        id += 16;
+    #endif // (CFG_SOC_NAME != SOC_BK7231)
     gpio_cfg_addr = (volatile UINT32 *)(REG_GPIO_CFG_BASE_ADDR + id * 4);
     reg_val = REG_READ(gpio_cfg_addr);
 
@@ -480,6 +497,11 @@ static void gpio_output_reverse(UINT32 id)
         goto reverse_exit;
     }
 
+    #if (CFG_SOC_NAME != SOC_BK7231)
+    if(id >= GPIO32)
+        id += 16;
+    #endif // (CFG_SOC_NAME != SOC_BK7231)
+	
     gpio_cfg_addr = (volatile UINT32 *)(REG_GPIO_CFG_BASE_ADDR + id * 4);
     reg_val = REG_READ(gpio_cfg_addr);
 

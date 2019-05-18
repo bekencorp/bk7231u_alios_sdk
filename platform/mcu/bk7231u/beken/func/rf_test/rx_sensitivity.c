@@ -4,7 +4,9 @@
 
 #include "uart_pub.h"
 #include "arm_arch.h"
+#if (CFG_SOC_NAME != SOC_BK7231)
 #include "ble_pub.h"
+#endif
 #include "icu_pub.h"
 #include "sys_ctrl_pub.h"
 

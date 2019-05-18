@@ -33,9 +33,6 @@
 #endif
 
 monitor_data_cb_t g_monitor_cb = 0;
-#if CFG_SUPPORT_BLE
-ble_data_cb_t g_ble_cb = 0;
-#endif
 int g_set_channel_postpone_num = 0; 
 #ifdef CONFIG_AOS_MESH
 monitor_data_cb_t g_mesh_monitor_cb = 0;
@@ -1561,33 +1558,6 @@ void user_callback_register(void)
 								test_assoc_fail_func
 	);
 }
-
-#if CFG_SUPPORT_BLE
-void bk_wlan_register_ble_cb(ble_data_cb_t fn)
-{
-	if(fn)
-	{
-    	g_ble_cb = fn;
-	}
-}
-
-ble_data_cb_t bk_wlan_get_ble_cb(void)
-{
-    if (g_ble_cb)
-    {
-    	return g_ble_cb;
-    }
-    else 
-	{
-        return NULL;
-    }
-}
-
-int bk_wlan_start_ble(void)
-{
-	ble_activate(NULL);
-}
-#endif
 
 #if CFG_SUPPORT_RTT
 OSStatus bk_wlan_ap_is_up(void)

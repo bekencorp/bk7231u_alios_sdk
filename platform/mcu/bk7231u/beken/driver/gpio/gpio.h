@@ -92,14 +92,16 @@
 #define AUDIO_DPLL_UNLOCK_INT_EN              (1 << 1)
 #define DPLL_UNLOCK_INT                       (1 << 2)
 #define AUDIO_DPLL_UNLOCK_INT                 (1 << 3)
-#define GPIO_EXTRAL_INT_MASK                  (DPLL_UNLOCK_INT | AUDIO_DPLL_UNLOCK_INT)
 #if (CFG_SOC_NAME == SOC_BK7221U)
 #define USB_PLUG_IN_INT_EN                    (1 << 4)
 #define USB_PLUG_OUT_INT_EN                   (1 << 5)
 #define USB_PLUG_IN_INT                       (1 << 6)
 #define USB_PLUG_OUT_INT                      (1 << 7)
 #define GPIO_EXTRAL_INT_MASK                  (DPLL_UNLOCK_INT | AUDIO_DPLL_UNLOCK_INT | USB_PLUG_IN_INT | USB_PLUG_OUT_INT)
+#else
+#define GPIO_EXTRAL_INT_MASK                  (DPLL_UNLOCK_INT | AUDIO_DPLL_UNLOCK_INT)
 #endif  // (CFG_SOC_NAME == SOC_BK7221U)
+
 #endif  //  (CFG_SOC_NAME == SOC_BK7231)
                  
 #define REG_GPIO_DETECT                      (GPIO_BASE_ADDR + 39*4)

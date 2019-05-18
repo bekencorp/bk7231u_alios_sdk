@@ -45,7 +45,7 @@
 #include "power_save_pub.h"
 #endif
 
-#ifdef CFG_SUPPORT_BLE
+#if (CFG_SOC_NAME != SOC_BK7231)
 #include "ble_pub.h"
 #endif
 
@@ -124,7 +124,7 @@ static DD_INIT_S dd_init_tbl[] =
     {"power_save",       sctrl_sta_ps_init,                NULLPTR},
 #endif
 
-#ifdef CFG_SUPPORT_BLE
+#if (CFG_SOC_NAME != SOC_BK7231)
 	{BLE_DEV_NAME,			ble_init,					ble_exit}, //sean
 #endif
 
