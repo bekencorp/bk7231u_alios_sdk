@@ -127,7 +127,7 @@ void bk_printf(const char *fmt, ...)
     va_start(ap, fmt);
     vsprintf(string, fmt, ap);
     string[127] = 0;
-    bk_send_string(UART1_PORT, string);
+    bk_send_string(UART2_PORT, string);
     va_end(ap);
 #endif
 

@@ -143,12 +143,92 @@ static void reg_write_read_test(char *pcWriteBuffer, int xWriteBufferLen, int ar
     }
 }
 
+#define NAME_DIF_LEN            4
+#define MAX_BLE_NAME_LEN        9
+static char linkkit_ble_name[MAX_BLE_NAME_LEN + NAME_DIF_LEN] = {0};
+static char name_diff[NAME_DIF_LEN+1] = {0};
+
+static void linkkit_ble_usage(void)
+{
+    aos_cli_printf("ble help           - Help information\n");
+    aos_cli_printf("ble active [name]  - Active ble to with name\n");
+    aos_cli_printf("ble active         - Active ble to with BK7231BTxxx\n");    
+    aos_cli_printf("ble dut            - Active ble to do BLE DUT\n");
+    aos_cli_printf("ble info           - get ble app info\n");     
+}
+
+static void linkkit_generate_ble_name(char *org_name)
+{
+    uint32 len = 0;
+        
+    len = strlen(org_name);
+    len = (len > MAX_BLE_NAME_LEN) ? MAX_BLE_NAME_LEN : len;
+
+    os_memcpy(linkkit_ble_name, org_name, len);
+    os_memcpy(&linkkit_ble_name[len], &name_diff[1], NAME_DIF_LEN-1);
+}
+
+static void linkkit_start_only_ble(void) 
+{
+    #define ONLY_BLE_NAME         "BK7231BT-"
+
+    linkkit_generate_ble_name(ONLY_BLE_NAME);
+    
+    ble_activate(linkkit_ble_name);
+}
+
+static void ble_get_info_Command(void)
+{
+    UINT8 *ble_mac;
+    aos_cli_printf("\r\n****** ble information ************\r\n");
+
+    if (ble_is_start() == 0) {
+        aos_cli_printf("no ble startup          \r\n");
+        return;
+    }
+    ble_mac = ble_get_mac();    
+    aos_cli_printf("* name: %s             \r\n", ble_get_name());
+    aos_cli_printf("* mac:%02x-%02x-%02x-%02x-%02x-%02x\r\n", ble_mac[0], ble_mac[1],ble_mac[2],ble_mac[3],ble_mac[4],ble_mac[5]);  
+    aos_cli_printf("***********  end  *****************\r\n");     
+}
+
+static void ble_entry_Command(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv)
+{
+    if ((argc == 1) || (strcmp(argv[1], "help") == 0))
+    {
+        linkkit_ble_usage();
+        return 0;
+    }
+	else if (strcmp(argv[1], "active") == 0)
+    {
+        char *name = NULL;
+        if(argc == 3) {
+            name = argv[2];
+            ble_activate(name);
+        }else if(argc == 2){
+            linkkit_start_only_ble();
+        }
+		
+    }
+    else if (strcmp(argv[1], "dut") == 0)
+    {
+		ble_dut_start();
+    }
+    else if (strcmp(argv[1], "info") == 0)
+    {
+		ble_get_info_Command();
+    }
+	
+	return 0;
+}
+
 static const struct cli_command cli_cmd_rftest[] = {
 	{"txevm",       "txevm [-m] [-c] [-l] [-r] [-w]", tx_evm_cmd_test},
 	{"rxsens",      "rxsens [-m] [-d] [-c] [-l]",    rx_sens_cmd_test},
 	{"efuse",       "efuse [-r addr] [-w addr data]", efuse_cmd_test},
     {"efusemac",    "efusemac [-r] [-w] [mac]",       efuse_mac_cmd_test},
     {"bkreg",       "bkreg -w/r addr [value]",        reg_write_read_test},
+    {"ble",         "ble help/active/dut",            ble_entry_Command},
 };
 #endif
 #endif
