@@ -236,7 +236,7 @@ void sctrl_flash_select_dco(void)
     ASSERT(DD_HANDLE_UNVALID != flash_hdl);
     ddev_control(flash_hdl, CMD_FLASH_SET_DCO, 0);
     //flash get id  shouldn't remove
-    ddev_control(flash_hdl, CMD_FLASH_GET_ID, 0);
+    ddev_control(flash_hdl, CMD_FLASH_GET_ID, &reg);
 }
 
 void sctrl_sta_ps_init(void)
@@ -374,14 +374,14 @@ void sctrl_init(void)
 	REG_WRITE(SCTRL_CLK_GATING, 0x3f);
 
 	/* increase VDD voltage*/
-	reg = REG_READ(SCTRL_DIGTAL_VDD);
-	reg &= (~(DIG_VDD_ACTIVE_MASK << DIG_VDD_ACTIVE_POSI));
     #if CFG_SYS_REDUCE_NORMAL_POWER
-	reg |= (4 << DIG_VDD_ACTIVE_POSI);
+	param = 4;
     #else
-	reg |= (5 << DIG_VDD_ACTIVE_POSI);
+	param = 5;
     #endif
-	REG_WRITE(SCTRL_DIGTAL_VDD, reg);
+	/* zhangheng modify to 4 without enable CFG_SYS_REDUCE_NORMAL_POWER, to reduce power by set vdd value, advised by xubin */
+	param = 4;
+    sctrl_ctrl(CMD_SCTRL_SET_VDD_VALUE, &param);
 
 	#if CFG_USE_STA_PS
 	/*32K Rosc calib*/
@@ -1798,6 +1798,12 @@ UINT32 sctrl_ctrl(UINT32 cmd, void *param)
         REG_WRITE(SCTRL_LOW_PWR_CLK, reg);
         break;
     
+    case CMD_SCTRL_SET_VDD_VALUE:
+    	reg = REG_READ(SCTRL_DIGTAL_VDD);
+    	reg &= (~(DIG_VDD_ACTIVE_MASK << DIG_VDD_ACTIVE_POSI));
+        reg |=((*(UINT32 *)param) << DIG_VDD_ACTIVE_POSI);
+    	REG_WRITE(SCTRL_DIGTAL_VDD, reg);
+        break;
     default:
         ret = SCTRL_FAILURE;
         break;

@@ -53,6 +53,7 @@
  * DEFINES
  ****************************************************************************************
  */
+#define CFG_SUPPORT_TPC_PA_MAP 0
 
 #if CFG_SUPPORT_TPC_PA_MAP
 // Limit as defined per radio specifications

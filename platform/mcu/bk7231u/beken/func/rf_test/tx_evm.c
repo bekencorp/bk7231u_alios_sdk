@@ -54,7 +54,7 @@ const UINT16 tx_freq_2_4_G[TX_2_4_G_CHANNEL_NUM] = {
 						2484
 };
 
-void evm_bypass_set_single_carrier(void)
+void evm_bypass_set_single_carrier(SC_TYPE_T type)
 {
     UINT32 reg;
 
@@ -65,6 +65,23 @@ void evm_bypass_set_single_carrier(void)
     reg = REG_READ((0x01050000+0x4c*4));  // RC_BEKEN_0x4c [31:30] : 1
     reg &= ~(0x3u<<30);
     reg |= (0x1u<<30);    
+    reg &= ~(0x3FFu<<0);
+    reg &= ~(0x3FFu<<16);
+    if(type == SINGLE_CARRIER_11B)
+    {
+        reg |= (0x118u << 0);
+        reg |= (0x118u << 16);
+    }
+    else if(type == SINGLE_CARRIER_11G)
+    {
+        reg |= (0x1A8u << 0);
+        reg |= (0x1A8u << 16);
+    }
+    else
+    {
+        reg |= (0xDDu << 0);
+        reg |= (0xDDu << 16);
+    }
     REG_WRITE((0x01050000+0x4c*4),reg); 
     
 }
@@ -219,6 +236,15 @@ void evm_bypass_mac(void)
 
 void evm_stop_bypass_mac(void)
 {
+    UINT32 reg;
+
+    reg = REG_READ((0x01050000+0x00*4));  // RC_BEKEN_0x0 [31] : 0
+    reg &= ~(1u<<31);
+    REG_WRITE((0x01050000+0x00*4),reg); 
+
+    reg = REG_READ((0x01050000+0x4c*4));  // RC_BEKEN_0x4c [31:30] : 0
+    reg &= ~(0x3u<<30);
+    REG_WRITE((0x01050000+0x4c*4),reg); 
 	sddev_control(MPB_DEV_NAME, MCMD_STOP_BYPASS_MAC, 0);
 	EVM_PRT("[EVM]tx_mode_stop_bypass_mac\r\n");
 }
@@ -239,9 +265,18 @@ void evm_bypass_mac_test(void)
 
 void evm_bypass_ble_test_start(UINT32 channel)
 {
-#if (CFG_SOC_NAME != SOC_BK7231)
     UINT32 param;
     param = PWD_BLE_CLK_BIT;
+    
+    UINT32 reg;
+
+    reg = REG_READ((0x01050000+0x00*4));  // RC_BEKEN_0x0 [31] : 0
+    reg &= ~(1u<<31);
+    REG_WRITE((0x01050000+0x00*4),reg); 
+
+    reg = REG_READ((0x01050000+0x4c*4));  // RC_BEKEN_0x4c [31:30] : 0
+    reg &= ~(0x3u<<30);
+    REG_WRITE((0x01050000+0x4c*4),reg); 
     
     sddev_control(SCTRL_DEV_NAME, CMD_BLE_RF_BIT_SET, NULL);
     sddev_control(SCTRL_DEV_NAME, CMD_SCTRL_BLE_POWERUP, NULL);
@@ -252,23 +287,30 @@ void evm_bypass_ble_test_start(UINT32 channel)
     sddev_control(BLE_DEV_NAME, CMD_BLE_AUTO_CHANNEL_DISABLE, NULL);
     sddev_control(BLE_DEV_NAME, CMD_BLE_AUTO_SYNCWD_DISABLE, NULL);
 
-    if(channel > 39)
+    if(channel < 2400)
     {
-        channel = 39;
+        channel = 2400;
     }
-    param = (channel + 1) * 2;
+    param = (channel - 2400) & 0x7F;
     sddev_control(BLE_DEV_NAME, CMD_BLE_SET_CHANNEL, &param);
     param = PN9_TX;
     sddev_control(BLE_DEV_NAME, CMD_BLE_SET_PN9_TRX, &param);
-#endif
 }
 
 void evm_bypass_ble_test_stop(void)
 {
-#if (CFG_SOC_NAME != SOC_BK7231)
+    UINT32 reg;
+
+    reg = REG_READ((0x01050000+0x00*4));  // RC_BEKEN_0x0 [31] : 0
+    reg &= ~(1u<<31);
+    REG_WRITE((0x01050000+0x00*4),reg); 
+
+    reg = REG_READ((0x01050000+0x4c*4));  // RC_BEKEN_0x4c [31:30] : 0
+    reg &= ~(0x3u<<30);
+    REG_WRITE((0x01050000+0x4c*4),reg); 
+
     sddev_control(SCTRL_DEV_NAME, CMD_BLE_RF_BIT_CLR, NULL);
     sddev_control(SCTRL_DEV_NAME, CMD_SCTRL_BLE_POWERDOWN, NULL);
-#endif
 }
 
 void evm_via_mac_evt(int dummy)

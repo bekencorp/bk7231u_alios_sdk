@@ -73,7 +73,7 @@ struct llm_le_create_con_cmd;
 #define LLD_ADV_HDL         BLE_CONNECTION_MAX
 
 /// RX interrupt threshold
-#define LLD_RX_IRQ_THRES   (BLE_RX_BUFFER_CNT) //(BLE_RX_BUFFER_CNT/4)  //modify 2017/08/31 alen
+#define LLD_RX_IRQ_THRES   (BLE_RX_BUFFER_CNT/4) //(BLE_RX_BUFFER_CNT/4)  //modify 2017/08/31 alen
 
 /// Basic rate and Enhanced Data Rate
 #define MOD_GFSK            0x01

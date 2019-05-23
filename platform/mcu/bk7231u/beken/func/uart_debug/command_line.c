@@ -463,10 +463,10 @@ int bkreg_run_command(const char *content, int cnt)
         if(rx_param->addr == 0x00800014) {
             #if ATE_APP_FUN
             if(get_ate_mode_state())
-                tx_param->value = 0x1B181106;   // testmode flag[31:28] | bk7231U:B [27:24] | date
+                tx_param->value = 0x1B190104;   // testmode flag[31:28] | bk7231U:B [27:24] | date
             else
             #endif
-                tx_param->value = 0x0B181106;
+                tx_param->value = 0x0B190104;
         }
         else
             tx_param->value = REG_READ(rx_param->addr);

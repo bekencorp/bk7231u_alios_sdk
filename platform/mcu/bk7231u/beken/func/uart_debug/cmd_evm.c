@@ -21,6 +21,9 @@
 #include "ate_app.h"
 #include "param_config.h"
 
+#include "arm_arch.h"
+#include "sys_ctrl_pub.h"
+
 typedef enum {
     TXEVM_E_STOP     = 0,
     TXEVM_E_REBOOT,
@@ -36,6 +39,7 @@ typedef enum {
     TXEVM_G_TEMP_FLASH,
     TXEVM_G_XTAL_FLASH,
     TXEVM_G_DIFF_FLASH,    
+    TXEVM_G_GET_SW_VER, 
     TXEVM_G_MAX
 } TXEVM_G_TYPE;
 
@@ -100,6 +104,17 @@ static UINT32 evm_translate_tx_rate(UINT32 rate)
     return param;
 }
 #endif
+extern uint8 soft_version[9];
+uint8 HexToChar(uint8 temp)
+{
+    uint8 dst;
+    if (temp < 10){
+        dst = temp + '0';
+    }else{
+        dst = temp -10 +'A';
+    }
+    return dst;
+}
 
 /*txevm [-m mode] [-c channel] [-l packet-length] [-r physical-rate]*/
 int do_evm(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
@@ -130,6 +145,9 @@ int do_evm(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
     UINT32 xtal = 0x10;
     UINT32 is_ble_test = 0;;
     UINT32 ble_test = 0;
+    UINT32 reg;
+    SC_TYPE_T single_carrier_type = SINGLE_CARRIER_11G;
+	int i;
 
     if(arg_cnt == 1)
         return 0;
@@ -223,6 +241,17 @@ int do_evm(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
                         manual_cal_load_temp_tag_from_flash();
                     }else if(op == TXEVM_G_DIFF_FLASH) {
                         manual_cal_load_differ_tag_from_flash();
+                    }else if(op == TXEVM_G_GET_SW_VER) {
+                    #if 0
+						os_printf("alios sw ver:%s\r\n", aos_get_app_version());
+						os_printf("midea sw ver:");
+						for (i = 0; i < 9; i++)
+						{
+							os_printf("%c", HexToChar((soft_version[i]>>4)&0x0F));
+							os_printf("%c", HexToChar(soft_version[i]&0x0F));
+						}
+						os_printf("\r\n");
+                    #endif
                     }
                     #if (CFG_SOC_NAME != SOC_BK7231)
                     else if(op == TXEVM_G_XTAL_FLASH) {
@@ -256,7 +285,9 @@ int do_evm(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
                     ble_pwr_pa = (os_strtoul(argv[arg_id + 2], NULL, 10));
                     arg_cnt -= 1;
                     arg_id += 1;
-                    break;
+                    os_printf("set pwr: gain:%d, unused:%d, rate:11\r\n", ble_pwr_mod, ble_pwr_pa);
+                    rwnx_cal_set_txpwr(ble_pwr_mod, EVM_DEFUALT_B_RATE);
+                    return 0;
                 }
                 else
                 {
@@ -405,8 +436,13 @@ int do_evm(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
     /*step2, handle*/
     if(!is_ble_test)
     {
+        //sys_ctrl_0x42[6:4]=SCTRL_DIGTAL_VDD=5
+        reg = 5;
+        sddev_control(SCTRL_DEV_NAME, CMD_SCTRL_SET_VDD_VALUE, &reg);
+
         if(mode)
         {
+            
             mdm_scramblerctrl_set(0x95);
             evm_bypass_mac_set_tx_data_length(modul_format, packet_len);
             if(rate <= 54) {
@@ -424,10 +460,19 @@ int do_evm(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
             rwnx_cal_set_txpwr_by_rate(evm_translate_tx_rate(rate), test_mode);
             CHECK_OPERATE_RF_REG_IF_IN_SLEEP_END();
 #endif
+            rwnx_cal_set_reg_adda_ldo(1);
             evm_start_bypass_mac();
 
+            if(g_rate == EVM_DEFUALT_B_RATE)
+            {
+                single_carrier_type = SINGLE_CARRIER_11B;
+            }
+            else
+            {
+                single_carrier_type = SINGLE_CARRIER_11G;
+            }
             if(single_carrier)
-                evm_bypass_set_single_carrier();
+                evm_bypass_set_single_carrier(single_carrier_type);
             
             if(trigger_pll) {
                 os_printf("cal dpll and open int\r\n");
@@ -451,8 +496,12 @@ int do_evm(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
         if(ble_test)
         {
             //os_printf("ble_test\r\n");
-            rwnx_cal_set_txpwr(ble_pwr_mod, 11);
+            single_carrier_type = SINGLE_CARRIER_BLE;
+            
+            rwnx_cal_set_txpwr(ble_pwr_mod, EVM_DEFUALT_BLE_RATE);
             evm_bypass_ble_test_start(ble_channel);
+            if(single_carrier)
+                evm_bypass_set_single_carrier(single_carrier_type);
         }
         else
         {

@@ -8,6 +8,7 @@
 #include "schedule_pub.h"
 #include "rtos_pub.h"
 #include "error.h"
+#include "sys_ctrl_pub.h"
 
 #include "arm_arch.h"
 
@@ -70,6 +71,8 @@ int do_rx_sensitivity(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 
     UINT32 arg_id = 1;
     UINT32 arg_cnt = argc;
+
+	UINT32 reg;
 
 #if CFG_RX_SENSITIVITY_TEST
     uint32_t t_ms = 0;
@@ -270,7 +273,27 @@ int do_rx_sensitivity(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
             return 1;
         } 
 
+        //sys_ctrl_0x42[6:4]=SCTRL_DIGTAL_VDD=4
+        if(mode == 0)
+        {
+            reg = 3;
+            sddev_control(SCTRL_DEV_NAME, CMD_SCTRL_SET_VDD_VALUE, &reg);
+        }
+        else
+        {
+            reg = 4;
+            sddev_control(SCTRL_DEV_NAME, CMD_SCTRL_SET_VDD_VALUE, &reg);
+        }
+        
         rs_test();
+
+        rwnx_cal_set_reg_adda_ldo(0);
+        
+        if(mode == 1)
+            rwnx_cal_set_40M_extra_setting(1);
+        else
+            rwnx_cal_set_40M_extra_setting(0);
+        
         g_rxsens_start = 1;
 
         if(duration) {
