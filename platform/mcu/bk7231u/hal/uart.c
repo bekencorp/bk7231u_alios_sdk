@@ -104,18 +104,25 @@ int32_t hal_uart_send(uart_dev_t *uart, const void *data, uint32_t size, uint32_
     DD_HANDLE uart_hdl;
 	uint8_t port;
 
+	if(uart->port == UART1_PORT)
+	{
+		pdrv = &_uart_drv[1];
+	}
+	else
+	{
+		pdrv = &_uart_drv[0];
+	}
+	
     rtos_lock_mutex( &pdrv->tx_mutex );
 	
     if(uart->port == UART1_PORT)
     {
         uart_hdl = ddev_open(UART2_DEV_NAME, &status, 0);
-		pdrv = &_uart_drv[1];
 		port = UART2_PORT;
     }
     else
     {
         uart_hdl = ddev_open(UART1_DEV_NAME, &status, 0);
-		pdrv = &_uart_drv[0];
 		port = UART1_PORT;
     }
 
