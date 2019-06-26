@@ -25,6 +25,10 @@
 	.globl fiq_pre_proc
 	.globl fiq_end_proc
 	.globl print_exception_addr
+	.globl do_undefined
+	.globl do_pabort
+	.globl do_dabort
+	.globl do_reserved
 
 /* ========================================================================
  *                                Macros
@@ -218,7 +222,8 @@ _sysboot_zi_init:
     BX LR
 
 		.align	5 
-boot_undefined:
+do_undefined:
+    LDMFD   SP!, {R0-R1}^
     MOV R0, LR
     MSR     CPSR_c, #0xd3
     MOV R1, LR
@@ -234,25 +239,55 @@ boot_swi:
     B print_exception_addr
 
 		.align	5 
-boot_pabort:
+do_pabort:
+    LDMFD   SP!, {R0-R1}^
     MOV R0, LR
     MSR     CPSR_c, #0xd3
     MOV R1, LR
     MOV R2, SP
     B print_exception_addr
+
+		.align	5 
+do_dabort:
+    LDMFD   SP!, {R0-R1}^
+    MOV R0, LR
+    MSR     CPSR_c, #0xd3
+    MOV R1, LR
+    MOV R2, SP
+    B print_exception_addr
+
+		.align	5 
+do_reserved:
+    LDMFD   SP!, {R0-R1}^
+    B boot_reserved
+
+		.align	5 
+boot_undefined:
+	STMFD  sp!,{r0-r1}
+	LDR    R1, =0x40000c
+	LDR    r0, [R1]
+	BX     r0
+    
+		.align	5 
+boot_pabort:
+	STMFD  sp!,{r0-r1}
+	LDR    R1, =0x400010
+	LDR    r0, [R1]
+	BX     r0
 
 		.align	5 
 boot_dabort:
-    MOV R0, LR
-    MSR     CPSR_c, #0xd3
-    MOV R1, LR
-    MOV R2, SP
-    B print_exception_addr
+	STMFD  sp!,{r0-r1}
+	LDR    R1, =0x400014
+	LDR    r0, [R1]
+	BX     r0
 
 		.align	5 
 boot_reserved:
-    B boot_reserved
-
+	STMFD  sp!,{r0-r1}
+	LDR    R1, =0x400018
+	LDR    r0, [R1]
+	BX     r0
 
 		.align	5
 irq_handler:

@@ -27,6 +27,10 @@
 #if CFG_SUPPORT_ALIOS
 #include "ll.h"
 
+extern void do_undefined();
+extern void do_pabort();
+extern void do_dabort();
+extern void do_reserved();
 extern void do_irq( void );
 extern void do_fiq( void );
 extern void do_swi( void );
@@ -264,6 +268,11 @@ void intc_init(void)
     *((volatile uint32_t *)0x400000) = &do_irq;
     *((volatile uint32_t *)0x400004) = &do_fiq;
     *((volatile uint32_t *)0x400008) = &do_swi;
+    *((volatile uint32_t *)0x40000c) = &do_undefined;
+    *((volatile uint32_t *)0x400010) = &do_pabort;
+    *((volatile uint32_t *)0x400014) = &do_dabort;
+    *((volatile uint32_t *)0x400018) = &do_reserved;
+    
 #endif
     intc_enable(FIQ_MAC_GENERAL);
     intc_enable(FIQ_MAC_PROT_TRIGGER);

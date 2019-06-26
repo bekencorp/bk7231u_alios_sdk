@@ -83,8 +83,13 @@ typedef struct
         } bits;
     } cfg;
 
+#if (CFG_SOC_NAME == SOC_BK7231)
     UINT16 end_value;
     UINT16 duty_cycle;
+#else
+	UINT32 end_value;
+	UINT32 duty_cycle;
+#endif
     PFUNC p_Int_Handler;
 } pwm_param_t;
 
