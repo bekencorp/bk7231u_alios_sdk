@@ -8,6 +8,7 @@
 
 #include "drv_model_pub.h"
 #include "uart_pub.h"
+#include "board.h"
 
 #define MAX_UART_NUM 2
 #define UART_FIFO_SIZE 256
@@ -39,7 +40,7 @@ int32_t hal_uart_init(uart_dev_t *uart)
     UINT32 status;
     DD_HANDLE uart_hdl;
 
-    if(uart->port == UART1_PORT)
+    if(uart->port == STDIO_UART)
     {
         uart_hdl = ddev_open(UART2_DEV_NAME, &status, 0);
 		pdrv  = &_uart_drv[1];
@@ -78,7 +79,7 @@ int32_t hal_uart_finalize(uart_dev_t *uart)
 {
     _uart_drv_t *pdrv;
 
-	if(uart->port == UART1_PORT)
+	if(uart->port == STDIO_UART)
 	{
 		pdrv = &_uart_drv[1];
 	}
@@ -104,7 +105,7 @@ int32_t hal_uart_send(uart_dev_t *uart, const void *data, uint32_t size, uint32_
     DD_HANDLE uart_hdl;
 	uint8_t port;
 
-	if(uart->port == UART1_PORT)
+	if(uart->port == STDIO_UART)
 	{
 		pdrv = &_uart_drv[1];
 	}
@@ -115,7 +116,7 @@ int32_t hal_uart_send(uart_dev_t *uart, const void *data, uint32_t size, uint32_
 	
     rtos_lock_mutex( &pdrv->tx_mutex );
 	
-    if(uart->port == UART1_PORT)
+    if(uart->port == STDIO_UART)
     {
         uart_hdl = ddev_open(UART2_DEV_NAME, &status, 0);
 		port = UART2_PORT;
@@ -169,7 +170,7 @@ int32_t hal_uart_recv_II(uart_dev_t *uart, void *data, uint32_t expect_size, uin
     expired_time = 0;
 	if(recv_size) *recv_size = 0;
 
-    if(uart->port == UART1_PORT)
+    if(uart->port == STDIO_UART)
     {
         uart_hdl = ddev_open(UART2_DEV_NAME, &status, 0);
 		pdrv = &_uart_drv[1];
@@ -225,7 +226,7 @@ void uart_rx_cb(uint8_t port, void *param)
 {
 	_uart_drv_t *pdrv;
 	
-	if(port == UART1_PORT)
+	if(port == STDIO_UART)
 	{
     	pdrv = &_uart_drv[1];
 	}
@@ -241,7 +242,7 @@ void uart_tx_cb(uint8_t port, void *param)
 {
 	_uart_drv_t *pdrv;
 
-	if(port == UART1_PORT)
+	if(port == STDIO_UART)
 	{
     	pdrv = &_uart_drv[1];
 	}
