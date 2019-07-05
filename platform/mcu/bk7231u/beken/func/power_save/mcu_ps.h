@@ -11,7 +11,16 @@
 
 #endif
 
-#define     MS_TO_TICK      2
+typedef struct
+{
+    UINT32 first_tick;
+    UINT64 first_tsf;
+} MCU_PS_TSF;
+typedef struct
+{
+    UINT32 fclk_tick;
+    UINT32 machw_tm;
+} MCU_PS_MACHW_TM;
 
 #endif
 

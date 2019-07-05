@@ -1,8 +1,6 @@
 #ifndef _SYS_CONFIG_H_
 #define _SYS_CONFIG_H_
 
-#define CFG_SUPPORT_BOOTLOADER                     0
-
 /*SUMMARY: macro--1: OPEN; --0:CLOSE*/
 
 /* uart2 for debug, and generally, uart1 is used for communication.
@@ -120,7 +118,11 @@
 #define CFG_SUPPORT_TIANZHIHENG_DRONE              0
 
 /*section 16-----support mcu & deep sleep*/
+#if (CFG_SUPPORT_ALIOS)
+#define CFG_USE_MCU_PS                             RHINO_CONFIG_PWRMGMT
+#else
 #define CFG_USE_MCU_PS                             1
+#endif
 #define CFG_USE_DEEP_PS                            1
 #define CFG_USE_BLE_PS                             0
 
@@ -137,13 +139,8 @@
 #define CONFIG_APP_MP3PLAYER 			           0
 
 /*section 21 ----- support ota*/
-#if CFG_SUPPORT_BOOTLOADER
-#define CFG_SUPPORT_OTA_HTTP                       1
-#define CFG_SUPPORT_OTA_TFTP                       1
-#else
 #define CFG_SUPPORT_OTA_HTTP                       0
 #define CFG_SUPPORT_OTA_TFTP                       0
-#endif
 
 /*section 22 ----- support adc calibrate*/
 #define CFG_SARADC_CALIBRATE                       0

@@ -10,6 +10,7 @@ $(NAME)_COMPONENTS := arch_armv5
 $(NAME)_COMPONENTS += newlib_stub rhino yloop alicrypto
 $(NAME)_COMPONENTS += lwip netmgr
 $(NAME)_COMPONENTS += libprov
+#$(NAME)_COMPONENTS += pwrmgmt
 
 GLOBAL_DEFINES += CONFIG_AOS_UOTA_BREAKPOINT
 GLOBAL_DEFINES += CONFIG_AOS_CLI_BOARD

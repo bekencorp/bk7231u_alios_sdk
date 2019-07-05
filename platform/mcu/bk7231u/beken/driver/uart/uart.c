@@ -984,8 +984,17 @@ UINT32 uart2_ctrl(UINT32 cmd, void *parm)
     return ret;
 }
 
-void uart_wait_tx_over()
+UINT32 uart_wait_tx_over()
 {
+    UINT32 uart_wait_us,baudrate1,baudrate2;
+    baudrate1 = UART_CLOCK/((((REG_READ(REG_UART1_CONFIG))>>UART_CLK_DIVID_POSI) 
+                    & UART_CLK_DIVID_MASK) + 1);
+    baudrate2 = UART_CLOCK/((((REG_READ(REG_UART2_CONFIG))>>UART_CLK_DIVID_POSI) 
+                    & UART_CLK_DIVID_MASK) + 1);
+
+    uart_wait_us = 1000000 * UART2_TX_FIFO_COUNT * 10 / baudrate2
+                + 1000000 * UART1_TX_FIFO_COUNT * 10 / baudrate1;
+
     while (UART2_TX_FIFO_EMPTY_GET() == 0)
     {
     }	
@@ -993,6 +1002,8 @@ void uart_wait_tx_over()
     while (UART1_TX_FIFO_EMPTY_GET() == 0)
     {
     }	
+
+    return uart_wait_us;
 }
 #endif // (!CFG_UART_DEBUG_COMMAND_LINE)
 

@@ -396,9 +396,6 @@ void sctrl_init(void)
     #endif // CFG_USE_AUDIO
     #endif // (CFG_SOC_NAME == SOC_BK7221U)
 
-	#if (RHINO_CONFIG_PWRMGMT & CFG_USE_STA_PS)
-	sctrl_mcu_init();
-	#endif
 }
 
 void sctrl_exit(void)
@@ -780,15 +777,17 @@ void sctrl_mcu_sleep(UINT32 peri_clk)
             reg = 0x0;
             sctrl_mcu_ps_info.first_sleep = 0;
         }
-#if (CHIP_U_MCU_WKUP_USE_TIMER && (CFG_SOC_NAME != SOC_BK7231))
-        reg |= (TIMER_ARM_WAKEUP_EN_BIT | UART2_ARM_WAKEUP_EN_BIT
-            #if (!PS_NO_USE_UART1_WAKE)
+#if (CHIP_U_MCU_WKUP_USE_TIMER && (CFG_SOC_NAME == SOC_BK7231U))
+        reg |= (TIMER_ARM_WAKEUP_EN_BIT 
+            #if (PS_USE_UART_WAKE_ARM)
+            | UART2_ARM_WAKEUP_EN_BIT
             | UART1_ARM_WAKEUP_EN_BIT
             #endif
             );
 #else
-        reg |= (PWM_ARM_WAKEUP_EN_BIT | UART2_ARM_WAKEUP_EN_BIT
-            #if (!PS_NO_USE_UART1_WAKE)
+        reg |= (PWM_ARM_WAKEUP_EN_BIT 
+            #if (PS_USE_UART_WAKE_ARM)
+            | UART2_ARM_WAKEUP_EN_BIT
             | UART1_ARM_WAKEUP_EN_BIT
             #endif
             );
@@ -854,7 +853,6 @@ void sctrl_mcu_init(void)
     reg &= ~(MCLK_DIV_MASK << MCLK_DIV_POSI);
 #if (CFG_SOC_NAME == SOC_BK7221U) 
     reg &= ~HCLK_DIV2_EN_BIT;
-    //reg |= ((MCLK_DIV_3 & MCLK_DIV_MASK) << MCLK_DIV_POSI);
 #endif
     reg |= ((MCLK_DIV_7 & MCLK_DIV_MASK) << MCLK_DIV_POSI);
 

@@ -10,7 +10,6 @@
 #include <k_api.h>
 
 #if (RHINO_CONFIG_PWRMGMT > 0)
-
 #include "mcu_ps_pub.h"
 #include "cpu_tickless.h"
 
@@ -46,7 +45,7 @@ pwr_status_t mcu_timer_init(void)
 
     krhino_spin_lock_init (&mcu_spin);
 
-    mcu_ps_init();
+    //mcu_ps_init();
 
     /* Return function status */
     init_flag = 1;

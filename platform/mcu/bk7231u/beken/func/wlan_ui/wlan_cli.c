@@ -39,12 +39,7 @@
 #include "mcu_ps_pub.h"
 #include "manual_ps_pub.h"
 
-#if CFG_SUPPORT_BOOTLOADER
-#include "wdt_pub.h"
-#include "lwip/sockets.h"
-#include "lwip/ip_addr.h"
-#include "lwip/inet.h"
-#endif
+
 
 #if (CFG_SOC_NAME == SOC_BK7221U)
 #include "security_pub.h"
@@ -52,7 +47,9 @@ extern void sec_Command(char *pcWriteBuffer, int xWriteBufferLen, int argc, char
 #endif
 
 #include "temp_detect_pub.h"
+#if CFG_SUPPORT_OTA_HTTP
 #include "utils_httpc.h"
+#endif
 
 #ifndef MOC
 static void task_Command( char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv );
@@ -68,6 +65,7 @@ extern int cli_putstr(const char *msg);
 static void bkreg_cmd_handle_input(char *inbuf, int len);
 extern int hexstr2bin(const char *hex, u8 *buf, size_t len);
 extern void make_tcp_server_command(char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv);
+#if CFG_SUPPORT_OTA_HTTP
 extern int httpclient_common(httpclient_t *client,
                              const char *url,
                              int port,
@@ -75,7 +73,7 @@ extern int httpclient_common(httpclient_t *client,
                              int method,
                              uint32_t timeout_ms,
                              httpclient_data_t *client_data);
-
+#endif
 u32 airkiss_process(u8 start);
 
 #if CFG_SARADC_CALIBRATE
@@ -1411,7 +1409,7 @@ static void tftp_ota_get_Command(char *pcWriteBuffer, int xWriteBufferLen, int a
 
 }
 #endif
-
+#if CFG_SUPPORT_OTA_HTTP
 #define HTTP_RESP_CONTENT_LEN   (256)
 /*
 *when HTTP_WR_TO_FLASH = 1 & CFG_SUPPORT_OTA_HTTP = 0 http data will write to flash ,addr #define HTTP_FLASH_ADDR  0xff000
@@ -1453,7 +1451,7 @@ HTTP_CMD_ERR:
     os_printf("Usage:httpc [url:]\r\n");
         
 }
-
+#endif
 static const struct cli_command built_ins[] =
 {
     {"help", NULL, help_command},
@@ -1524,8 +1522,9 @@ static const struct cli_command built_ins[] =
 #if CFG_USE_TEMPERATURE_DETECT
     {"tmpdetect", "tmpdetect <cmd>", temp_detect_Command},
 #endif
-
+#if CFG_SUPPORT_OTA_HTTP
 	{"httpc", "http client", http_client_Command},
+#endif
 
 };
 
@@ -1936,7 +1935,9 @@ static void Ps_Command(char *pcWriteBuffer, int xWriteBufferLen, int argc, char 
     }
     else if(0 == os_strcmp(argv[1], "dump"))
     {
+        #if CFG_USE_MCU_PS
         mcu_ps_dump();
+        #endif
         power_save_dump();
     }
 #endif

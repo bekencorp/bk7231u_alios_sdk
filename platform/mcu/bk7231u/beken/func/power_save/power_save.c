@@ -21,6 +21,7 @@
 #include "error.h"
 
 volatile static PS_MODE_STATUS    bk_ps_mode = PS_NO_PS_MODE;
+static UINT32 last_wk_tick = 0;
 
 #if CFG_USE_STA_PS
 static STA_PS_INFO bk_ps_info =
@@ -48,24 +49,35 @@ static UINT16 r_wakeup_time = 32;
 #if PS_DTIM_WITH_NORMAL
 volatile static UINT8 ps_dtim_normal_enable = 0;
 #endif
+static UINT32 int_enable_reg_save = 0;
 static UINT8 ps_lock = 1;
 static PS_FORBID_STATUS bk_forbid_code = 0;
 static UINT16 bk_forbid_count = 0;
 static UINT32 ps_dis_flag = 0;
 static UINT16 beacon_len = 0;
+
+#if PS_DTIM_PERI_WAKE_DELAY
 static UINT32 ps_delay_wait_time = 0;
+#endif
+
 static UINT32 ps_delay_rfup_time = 0;
 UINT32 ps_next_data_ck_time = 0;
 static UINT8 pwm0_use_for_ps = 0;
+
 #if CFG_SUPPORT_ALIOS
 static beken_timer_t ps_td_ck_timer = {0};
 static beken_timer_t ps_keep_timer = {0};
+static beken_timer_t ps_wait_timer = {0};
 #else
 static beken2_timer_t ps_td_ck_timer = {0};
 static beken2_timer_t ps_keep_timer = {0};
+static beken2_timer_t ps_wait_timer = {0};
 #endif
+
 static UINT32 ps_td_ck_timer_status = 0;
 static UINT32 ps_keep_timer_status = 0;
+static UINT32 ps_wait_timer_status = 0;
+
 static UINT32 ps_td_last_tick = 0;
 static UINT32 ps_keep_timer_period = 0;
 static UINT32 ps_reseted_moniter_flag = 0;
@@ -75,6 +87,7 @@ static UINT32 ps_bcn_loss_max_count = 0;
 void power_save_td_ck_timer_handler(void *data);
 void power_save_keep_timer_handler(void *data);
 void power_save_td_timer_stop(void);
+extern void bmsg_null_sender(void);
 
 int net_if_is_up(void)
 {
@@ -229,14 +242,13 @@ bool power_save_sleep(void)
     }
 
     reg = REG_READ(ICU_INTERRUPT_ENABLE);
-    //reg |= (CO_BIT(FIQ_MAC_WAKEUP));
+    int_enable_reg_save = reg;
     reg &= ~(CO_BIT(FIQ_MAC_TX_RX_MISC)
              | CO_BIT(FIQ_MAC_TX_RX_TIMER)
              | CO_BIT(FIQ_MAC_RX_TRIGGER)
              | CO_BIT(FIQ_MAC_TX_TRIGGER)
              | CO_BIT(FIQ_MAC_GENERAL)
              | CO_BIT(FIQ_MAC_PROT_TRIGGER)
-             | CO_BIT(IRQ_SARADC)
              | CO_BIT(FIQ_DPLL_UNLOCK));
     REG_WRITE(ICU_INTERRUPT_ENABLE, reg);
 #if NX_POWERSAVE
@@ -245,17 +257,7 @@ bool power_save_sleep(void)
     if(false == ret)
     {
         PS_PRT("can't ps\r\n");
-        reg = REG_READ(ICU_INTERRUPT_ENABLE);
-        reg &= ~(CO_BIT(FIQ_MAC_WAKEUP));
-        reg |= (CO_BIT(FIQ_MAC_TX_RX_MISC)
-                | CO_BIT(FIQ_MAC_TX_RX_TIMER)
-                | CO_BIT(FIQ_MAC_RX_TRIGGER)
-                | CO_BIT(FIQ_MAC_TX_TRIGGER)
-                | CO_BIT(FIQ_MAC_GENERAL)
-                | CO_BIT(FIQ_MAC_PROT_TRIGGER)
-                | CO_BIT(IRQ_SARADC)
-                | CO_BIT(FIQ_DPLL_UNLOCK));
-        REG_WRITE(ICU_INTERRUPT_ENABLE, reg);
+        REG_WRITE(ICU_INTERRUPT_ENABLE, int_enable_reg_save);
         GLOBAL_INT_RESTORE();
         return ret;
     }
@@ -356,18 +358,9 @@ void power_save_mac_idle_callback(void)
 {
     if(power_save_if_sleep_first())
     {
-#if (CFG_SOC_NAME == SOC_BK7231)
         power_save_wkup_time_cal(1);
         nxmac_tsf_mgt_disable_setf(0);
         nxmac_listen_interval_setf(1);
-#else
-        nxmac_radio_wake_up_time_setf(r_wakeup_time);
-        nxmac_dtim_period_setf(bk_ps_info.ps_dtim_period);
-        delay(1);
-        nxmac_dtim_updated_by_sw_setf(1);
-        nxmac_tsf_mgt_disable_setf(0);
-        nxmac_wakeup_dtim_setf(1);
-#endif
 
         nxmac_atim_w_setf(512);
         nxmac_wake_up_sw_setf(0);
@@ -379,7 +372,6 @@ void power_save_mac_idle_callback(void)
         os_printf(" dtim period:%d multi:%d\r\n", bk_ps_info.ps_dtim_period, bk_ps_info.ps_dtim_multi);
         bk_ps_info.sleep_first = 0;
     }
-#if (CFG_SOC_NAME == SOC_BK7231)
     else
     {
         if(bk_ps_info.liston_mode == PS_LISTEN_MODE_DTIM)
@@ -406,11 +398,16 @@ void power_save_mac_idle_callback(void)
         }
 
     }
-#endif
 
     bk_ps_info.sleep_count ++;
 }
 
+UINT32 power_save_get_rf_ps_dtim_time(void)
+{
+    UINT32 tm;
+    tm = bk_ps_info.ps_dtim_period * bk_ps_info.ps_dtim_multi * bk_ps_info.ps_beacon_int;
+    return tm;
+}
 
 void power_save_sleep_status_set(void)
 {
@@ -487,17 +484,8 @@ void power_save_wakeup(void)
 #if NX_POWERSAVE
     rwnxl_wakeup(power_save_wkup_wait_idle_int_cb);
 #endif
-    reg = REG_READ(ICU_INTERRUPT_ENABLE);
-    reg &= ~(CO_BIT(FIQ_MAC_WAKEUP));
-    reg |= (CO_BIT(FIQ_MAC_TX_RX_MISC)
-            | CO_BIT(FIQ_MAC_TX_RX_TIMER)
-            | CO_BIT(FIQ_MAC_RX_TRIGGER)
-            | CO_BIT(FIQ_MAC_TX_TRIGGER)
-            | CO_BIT(FIQ_MAC_GENERAL)
-            | CO_BIT(FIQ_MAC_PROT_TRIGGER)
-            | CO_BIT(IRQ_SARADC)
-            | CO_BIT(FIQ_DPLL_UNLOCK));
-    REG_WRITE(ICU_INTERRUPT_ENABLE, reg);
+    int_enable_reg_save &= ~(CO_BIT(FIQ_MAC_WAKEUP));
+    REG_WRITE(ICU_INTERRUPT_ENABLE, int_enable_reg_save);
     PS_DEBUG_UP_TRIGER;
 
     ASSERT(!ps_lock);
@@ -527,8 +515,8 @@ void power_save_ieee_dtim_wakeup(void)
 
         bk_ps_info.ps_real_sleep = 0;
         bk_ps_info.ps_can_sleep = 1;
-#if PS_DTIM_PERI_WAKE_DELAY
 
+#if PS_DTIM_PERI_WAKE_DELAY
         if(bk_ps_info.ps_arm_wakeup_way == PS_DTIM_ARM_WAKEUP_PERI)
         {
             os_printf("w:peri wake\r\n");
@@ -539,12 +527,25 @@ void power_save_ieee_dtim_wakeup(void)
                 os_printf("uart wake delay %d %d\r\n", bk_ps_info.PsPeriWakeupWaitTimeMs, ps_delay_wait_time);
             }
         }
-
 #endif
+#if CFG_USE_MCU_PS
+        //tick check
+        mcu_ps_machw_cal();
+#endif
+        last_wk_tick = fclk_get_tick();
+
         if(!power_save_if_sleep_first() && ps_keep_timer_period)
         {
             bmsg_ps_sender(PS_BMSG_IOCTL_RF_KP_SET);
+
         }
+        else
+        {
+            //os_printf("errr %d %d\r\n", power_save_if_sleep_first(), ps_keep_timer_period);
+        }
+
+        ke_evt_set(KE_EVT_KE_TIMER_BIT);
+        ke_evt_set(KE_EVT_MM_TIMER_BIT);
         power_save_dtim_exit_check();
     }
 }
@@ -607,15 +608,24 @@ bool power_save_rf_sleep_check( void )
 #endif
 #endif
 #endif //(NX_POWERSAVE)
+
+    return 0;
 }
 
 void power_save_me_ps_first_set_state(UINT8 state)
 {
     int param_len;
+    VIF_INF_PTR vif_entry;
     struct ke_msg *kmsg_dst;
     struct me_set_ps_disable_req *me_ps_ptr;
     os_printf("%s:%d \r\n", __FUNCTION__, __LINE__);
     param_len = sizeof(struct me_set_ps_disable_req);
+
+    vif_entry = (VIF_INF_PTR)rwm_mgmt_is_vif_first_used();
+    while(vif_entry)
+    {
+        if(vif_entry->type == VIF_STA && vif_entry->active)
+        {
     kmsg_dst = (struct ke_msg *)os_malloc(sizeof(struct ke_msg)
                                           + param_len);
 
@@ -624,7 +634,6 @@ void power_save_me_ps_first_set_state(UINT8 state)
         os_printf("%s:%d malloc fail\r\n", __FUNCTION__, __LINE__);
         return ;
     }
-
     os_memset(kmsg_dst, 0, (sizeof(struct ke_msg) + param_len));
     kmsg_dst->id = ME_PS_REQ;
     kmsg_dst->dest_id = TASK_ME;
@@ -632,7 +641,13 @@ void power_save_me_ps_first_set_state(UINT8 state)
     kmsg_dst->param_len = param_len;
     me_ps_ptr = (struct me_set_ps_disable_req *)kmsg_dst->param;
     me_ps_ptr->ps_disable = state;
+            me_ps_ptr->vif_idx = vif_entry->index;
+
     ke_msg_send(ke_msg2param(kmsg_dst));
+}
+        vif_entry = (VIF_INF_PTR)rwm_mgmt_next(vif_entry);
+    }
+
 }
 
 
@@ -687,7 +702,7 @@ UINT8 power_save_sm_set_all_bcmc(UINT8 bcmc )
     {
         vif_entry = &vif_info_tab[i];
 
-        if(vif_entry->active )
+        if(vif_entry->active && vif_entry->type == VIF_STA)
         {
             power_save_sm_set_bcmc(bcmc, i);
         }
@@ -721,7 +736,7 @@ UINT8 power_save_me_ps_set_all_state(UINT8 state )
     for(i = 0; i < NX_VIRT_DEV_MAX; i++)
     {
         vif_entry = &vif_info_tab[i];
-        if(vif_entry->type == VIF_STA)
+        if(vif_entry->active && vif_entry->type == VIF_STA)
         {
             power_save_me_ps_set_state(state, i);
         }
@@ -747,6 +762,8 @@ void power_save_timer_init(void)
         rtos_deinit_oneshot_timer(&ps_td_ck_timer);
 #endif
     }
+
+    os_printf("linger_timer init %d\r\n", bk_ps_info.PsDataWakeupWaitTimeMs);
 
     if(bk_ps_info.PsDataWakeupWaitTimeMs > 0)
     {
@@ -784,7 +801,7 @@ void power_save_keep_timer_init(void)
         rtos_deinit_oneshot_timer(&ps_keep_timer);
 #endif
     }
-    os_printf("ps_keep_timer init\r\n");
+    os_printf("ps_keep_timer init %d\r\n", ps_keep_timer_period);
 
     if(ps_keep_timer_period > 0)
     {
@@ -818,42 +835,72 @@ void power_save_dtim_ps_init(void)
 
 }
 
-
 void power_save_dtim_ps_exit(void)
 {
     UINT32 reg;
     OSStatus ret, err;
-    bk_ps_info.ps_can_sleep = 0;
-    bk_ps_info.waited_beacon = STA_GET_INIT;
-    bk_ps_info.PsDataWakeupWaitTimeMs = 0 ;
+    power_save_keep_timer_stop();
+    power_save_td_timer_stop();
+    power_save_wait_timer_stop();
     bk_ps_info.PsPeriWakeupWaitTimeMs = 0 ;
     nxmac_beacon_int_setf(0);
     delay(1);
-    bk_ps_info.ps_real_sleep = 0;
     bk_ps_info.sleep_count = 0;
+    bk_ps_info.tm_status = PS_TM_CK_TIMEOUT;
+    bk_ps_info.ps_dtim_period = 1;
+    bk_ps_info.ps_dtim_multi = 1;
+    bk_ps_info.sleep_ms = 300;
+    bk_ps_info.liston_int = 1;
+    bk_ps_info.waited_beacon = STA_GET_INIT;
+    bk_ps_info.ps_bcn_ab_status = PS_BCN_STATUS_INIT;
     bk_ps_info.sleep_first = 1;
+    bk_ps_info.ps_can_sleep = 0;
+    bk_ps_info.ps_bcn_cal_status = PS_BCN_NO_CAL;
+    bk_ps_info.ps_real_sleep = 0;
+    bk_ps_info.pwm0_less_time = 0;
 }
 
 
 int power_save_dtim_enable_handler(void)
 {
-    UINT32 temp;
+    UINT32 temp, ps_time, multi;
     UINT32 wakeup_time = 2;
+
     GLOBAL_INT_DECLARATION();
     GLOBAL_INT_DISABLE();
 
-    if(bk_ps_mode == PS_DTIM_PS_OPENING)
+    if((bk_ps_mode == PS_DTIM_PS_OPENING) && (mhdr_get_station_status() >=  MSG_CONN_SUCCESS))
     {
+
+        ps_time = power_save_get_rf_ps_dtim_time();
+        if(ps_time > 0 && ps_time < 75)
+        {
+            multi = 75 / ps_time + 1;
+            power_save_set_dtim_multi(multi);
+        }
+        else
+    {
+            power_save_set_dtim_multi(1);
+        }
+
         os_printf("enter %d ps,p:%d m:%d int:%d l:%d!\r\n", bk_ps_info.liston_mode,
                   bk_ps_info.ps_dtim_period, bk_ps_info.ps_dtim_multi,
                   bk_ps_info.ps_beacon_int, bk_ps_info.liston_int);
+
         power_save_set_uart_linger_time(0);
         power_save_dtim_ps_init();
         bk_ps_info.if_wait_bcn = 1;
         bk_ps_mode = PS_DTIM_PS_MODE;
+        power_save_wait_timer_init();
+    }
+    else
+    {
+        os_printf("%s:%d %d %d--\r\n", __FUNCTION__, __LINE__, bk_ps_mode, mhdr_get_station_status());
     }
 
     GLOBAL_INT_RESTORE();
+
+    return 0;
 }
 
 
@@ -910,15 +957,14 @@ int power_save_dtim_disable_handler(void)
 
         if(power_save_wkup_event_get() & NEED_REBOOT_BIT)
         {
-#if CFG_SUPPORT_BOOTLOADER
             os_printf("wdt reboot\r\n");
             sddev_control(WDT_DEV_NAME, WCMD_SET_PERIOD, &wdt_val);
             sddev_control(WDT_DEV_NAME, WCMD_POWER_UP, NULL);
-#else
-            os_printf("reboot\r\n");
-            (*reboot)();
-#endif
         }
+    }
+    else
+    {
+        os_printf("%s:%d %d %d--\r\n", __FUNCTION__, __LINE__, bk_ps_mode, mhdr_get_station_status());
     }
 
     GLOBAL_INT_RESTORE();
@@ -933,6 +979,7 @@ int power_save_dtim_disable(void)
 
     if(bk_ps_mode == PS_DTIM_PS_MODE)
     {
+        power_save_wkup_event_set(NEED_ME_DISABLE_BIT);
         GLOBAL_INT_RESTORE();
         power_save_me_ps_set_all_state(true);
         os_printf("start exit!\r\n");
@@ -942,6 +989,8 @@ int power_save_dtim_disable(void)
     {
         GLOBAL_INT_RESTORE();
     }
+
+    return 0;
 }
 
 
@@ -951,6 +1000,8 @@ int power_save_dtim_rf_ps_disable_send_msg(void)
     {
         bmsg_ps_sender(PS_BMSG_IOCTL_RF_DISANABLE);
     }
+
+    return 0;
 }
 
 void power_save_rf_dtim_manual_do_wakeup(void)
@@ -1066,23 +1117,28 @@ void power_save_td_timer_stop(void)
     int32 err;
 
     GLOBAL_INT_DECLARATION();
+    if (rtos_is_timer_running(&ps_td_ck_timer)) 
+    {
 #if CFG_SUPPORT_ALIOS
     err = rtos_stop_timer(&ps_td_ck_timer);
 #else
     err = rtos_stop_oneshot_timer(&ps_td_ck_timer);
 #endif
     ASSERT(kNoErr == err);
+    }
     GLOBAL_INT_DISABLE();
     ps_td_ck_timer_status = 0;
     GLOBAL_INT_RESTORE();
 }
 
-void power_save_td_ck_timer_real_handler(void *data)
+void power_save_td_ck_timer_real_handler(void )
 {
     OSStatus err;
     power_save_td_timer_stop();
+    if(PS_STA_DTIM_SWITCH)
+    {
     ps_td_last_tick = 1;
-
+    }
 #if CFG_USE_STA_PS
     extern void bmsg_null_sender(void);
     bmsg_null_sender();
@@ -1120,16 +1176,118 @@ void power_save_td_ck_timer_set(void)
     }
 }
 
+
+void power_save_wait_timer_stop(void)
+{
+    OSStatus err;
+    GLOBAL_INT_DECLARATION();
+    if (rtos_is_timer_running(&ps_wait_timer)) 
+    {
+#if CFG_SUPPORT_ALIOS
+        err = rtos_stop_timer(&ps_wait_timer);
+#else
+        err = rtos_stop_oneshot_timer(&ps_wait_timer);
+#endif
+        ASSERT(kNoErr == err);
+    }
+    GLOBAL_INT_DISABLE();
+    ps_wait_timer_status = 0;
+    GLOBAL_INT_RESTORE();
+}
+
+void power_save_wait_timer_real_handler(void )
+{
+    OSStatus err;
+    power_save_wait_timer_stop();
+    if(PS_STA_DTIM_SWITCH)
+    {
+        power_save_beacon_state_set(STA_GET_TRUE);
+    }
+}
+
+
+void power_save_wait_timer_handler(void *data)
+{
+    bmsg_ps_sender(PS_BMSG_IOCTL_WAIT_TM_HANDLER);
+}
+void power_save_wait_timer_init(void)
+{
+    UINT32 reg, err;
+#if CFG_SUPPORT_ALIOS
+    if(rtos_is_timer_init(&ps_wait_timer))
+#else
+    if(rtos_is_oneshot_timer_init(&ps_wait_timer))
+#endif
+    {
+        power_save_wait_timer_stop();
+#if CFG_SUPPORT_ALIOS
+        rtos_deinit_timer(&ps_wait_timer);
+#else
+        rtos_deinit_oneshot_timer(&ps_wait_timer);
+#endif
+    }
+
+    {
+#if CFG_SUPPORT_ALIOS
+        err = rtos_init_timer(&ps_wait_timer,
+#else
+        err = rtos_init_oneshot_timer(&ps_wait_timer,
+#endif
+                              20,
+#if CFG_SUPPORT_ALIOS
+                              (timer_handler_t)power_save_wait_timer_handler,
+#else
+                              (timer_2handler_t)power_save_wait_timer_handler,
+                              NULL,
+#endif
+                              NULL);
+        ASSERT(kNoErr == err);
+    }
+}
+
+void power_save_wait_timer_set(void )
+{
+    if(PS_STA_DTIM_SWITCH)
+    {
+        bmsg_ps_sender(PS_BMSG_IOCTL_WAIT_TM_SET);
+    }
+}
+
+void power_save_wait_timer_start(void)
+{
+    OSStatus err;
+
+#if CFG_SUPPORT_ALIOS
+    if(rtos_is_timer_init(&ps_wait_timer) && ps_wait_timer_status == 0)
+#else
+    if(rtos_is_oneshot_timer_init(&ps_wait_timer) && ps_wait_timer_status == 0)
+#endif
+    {
+        ps_wait_timer_status = 1;
+        power_save_beacon_state_set(STA_GET_FALSE);
+#if CFG_SUPPORT_ALIOS
+        err = rtos_start_timer(&ps_wait_timer);
+#else
+        err = rtos_start_oneshot_timer(&ps_wait_timer);
+#endif
+        ASSERT(kNoErr == err);
+    }
+}
+
+
 void power_save_keep_timer_stop(void)
 {
     OSStatus err;
     GLOBAL_INT_DECLARATION();
+    if (rtos_is_timer_running(&ps_keep_timer)) 
+    {
 #if CFG_SUPPORT_ALIOS
     err = rtos_stop_timer(&ps_keep_timer);
 #else
     err = rtos_stop_oneshot_timer(&ps_keep_timer);
 #endif
     ASSERT(kNoErr == err);
+    }
     GLOBAL_INT_DISABLE();
     ps_keep_timer_status = 0;
     GLOBAL_INT_RESTORE();
@@ -1143,7 +1301,9 @@ void power_save_keep_timer_real_handler()
     power_save_keep_timer_stop();
 
     GLOBAL_INT_DISABLE();
-    if(bk_ps_info.ps_arm_wakeup_way == PS_ARM_WAKEUP_RW && 0 == bk_ps_info.ps_real_sleep)
+    if((PS_STA_DTIM_SWITCH)
+            && bk_ps_info.ps_arm_wakeup_way == PS_ARM_WAKEUP_RW
+            && 0 == bk_ps_info.ps_real_sleep)
     {
         if(0 == ps_reseted_moniter_flag 
 #if CFG_SUPPORT_ALIOS
@@ -1278,6 +1438,35 @@ void power_save_beacon_state_update(void)
     }
 }
 
+
+void power_save_bcn_callback(uint8_t *data, int len, hal_wifi_link_info_t *info)
+{
+    int i;
+    struct bcn_frame *bcn = (struct bcn_frame *)data;
+    UINT64 tsf_start_peer = bcn->tsf;
+    VIF_INF_PTR vif_entry;
+
+    vif_entry = (VIF_INF_PTR)rwm_mgmt_is_vif_first_used();
+    while(vif_entry)
+    {
+        if(vif_entry->type == VIF_STA && vif_entry->active)
+        {
+            break;
+        }
+        vif_entry = (VIF_INF_PTR)rwm_mgmt_next(vif_entry);
+    }
+
+    if (!vif_entry)
+        return;
+
+    if(bcn->bcnint != bk_ps_info.ps_beacon_int)
+    {
+        os_printf("bcn interval changed %x %x\r\n", bcn->bcnint, bk_ps_info.ps_beacon_int);
+        mm_send_connection_loss_ind(vif_entry);
+    }
+
+}
+
 UINT8 power_save_if_sleep_first(void)
 {
     return bk_ps_info.sleep_first;
@@ -1338,12 +1527,18 @@ UINT32 power_save_wkup_event_get(void)
 
 void power_save_wkup_event_set(UINT32 value)
 {
+    GLOBAL_INT_DECLARATION();
+    GLOBAL_INT_DISABLE();
     ps_dis_flag |= value;
+    GLOBAL_INT_RESTORE();
 }
 
 void power_save_wkup_event_clear(UINT32 value)
 {
+    GLOBAL_INT_DECLARATION();
+    GLOBAL_INT_DISABLE();
     ps_dis_flag &= ~value;
+    GLOBAL_INT_RESTORE();
 }
 
 UINT16 power_save_beacon_len_get(void)
@@ -1381,6 +1576,8 @@ UINT8 power_save_set_dtim_multi(UINT8 multi)
     }
 
     bk_ps_info.liston_mode = PS_LISTEN_MODE_DTIM;
+
+    return 0;
 }
 
 UINT16 power_save_forbid_trace(PS_FORBID_STATUS forbid)
@@ -1389,8 +1586,8 @@ UINT16 power_save_forbid_trace(PS_FORBID_STATUS forbid)
 
     if(bk_forbid_code != forbid || (bk_forbid_count % 100 == 0))
     {
-        PS_PRT("front c:%d\r\n\r\n", bk_forbid_count);
-        PS_PRT("ps_cd:%d %d\r\n", bk_forbid_code,forbid);
+        PS_DBG("front c:%d\r\n\r\n", bk_forbid_count);
+        PS_DBG("ps_cd:%d %d\r\n", bk_forbid_code, forbid);
         bk_forbid_count = 0;
     }
 
@@ -1401,6 +1598,7 @@ UINT16 power_save_forbid_trace(PS_FORBID_STATUS forbid)
 void power_save_dump(void)
 {
     UINT32 i;
+    extern UINT32 txl_cntrl_pck_get(void );
     os_printf("rf:%x\r\n", bk_ps_mode);
     os_printf("info dump\r\n");
 
@@ -1451,8 +1649,6 @@ UINT8 power_save_if_rf_sleep(void)
     if(bk_wlan_has_role(VIF_STA))
     {
 #if CFG_USE_STA_PS
-    if(PS_STA_DTIM_SWITCH)
-    {
         if(bk_ps_info.ps_real_sleep == 1)
         {
             return 1;
@@ -1461,7 +1657,6 @@ UINT8 power_save_if_rf_sleep(void)
         {
             return 0;
         }
-    }
 #endif
         return 0;
     }
@@ -1471,5 +1666,27 @@ UINT8 power_save_if_rf_sleep(void)
     }
 }
 
+UINT32 power_save_time_to_sleep(void)
+{
+    UINT32 tm;
+    INT32 less;
+
+#if CFG_USE_STA_PS
+    if(bk_ps_info.ps_dtim_count == 0)
+    {
+        tm = bk_ps_info.ps_dtim_period * bk_ps_info.ps_dtim_multi * bk_ps_info.ps_beacon_int;
+    }
+    else
+    {
+        tm = (bk_ps_info.ps_dtim_period * (bk_ps_info.ps_dtim_multi - 1) + bk_ps_info.ps_dtim_count) * bk_ps_info.ps_beacon_int;
+    }
+
+    less = tm - (((fclk_get_tick() - last_wk_tick) * FCLK_DURATION_MS) % tm);
+#else
+    less = 0;
+#endif
+
+    return less;
+}
 // eof
 

@@ -302,6 +302,13 @@ void ps_msg_process(UINT8 ps_msg)
         case PS_BMSG_IOCTL_RF_KP_STOP:
             power_save_keep_timer_stop();
             break;
+        case PS_BMSG_IOCTL_WAIT_TM_HANDLER:
+            power_save_wait_timer_real_handler();
+            break;
+        case PS_BMSG_IOCTL_WAIT_TM_SET:
+            power_save_wait_timer_start();
+            break;
+            
 #endif
 
         default:

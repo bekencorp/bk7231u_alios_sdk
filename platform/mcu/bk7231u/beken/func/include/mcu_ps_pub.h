@@ -5,13 +5,15 @@
 
 #define     CFG_MCU_PS_SELECT_120M      1
 
-typedef struct  mcu_ps{
+typedef struct  mcu_ps
+{
     UINT8 mcu_ps_on;
     int peri_busy_count;
     UINT32 mcu_prevent;
 }MCU_PS_INFO;
 
-typedef struct  sctrl_mcu_ps{
+typedef struct  sctrl_mcu_ps
+{
     UINT8 hw_sleep ;
     UINT8 first_sleep ;    
     UINT8 mcu_use_dco;
@@ -22,6 +24,7 @@ typedef struct  sctrl_mcu_ps{
 
 #define CHIP_U_MCU_WKUP_USE_TIMER  1
 
+#define  PS_USE_UART_WAKE_ARM   1
 
 extern void vTaskStepTick( const TickType_t  );
 extern void mcu_ps_init(void);
@@ -42,7 +45,14 @@ extern void ps_pwm0_disable(void );
 extern void ps_pwm0_enable(void);
 extern UINT32 ps_timer3_disable(void);
 extern void ps_timer3_enable(UINT32 );
+extern UINT32 ps_pwm0_int_status(void );
+extern UINT32 rtt_update_tick(UINT32 tick);
+
 extern UINT32 ps_timer3_measure_prepare(void);
+extern UINT32 mcu_ps_tsf_cal(UINT64);
+extern UINT32 mcu_ps_machw_cal(void);
+extern UINT32 mcu_ps_machw_reset(void);
+extern UINT32 mcu_ps_machw_init(void);
 
 #endif
 

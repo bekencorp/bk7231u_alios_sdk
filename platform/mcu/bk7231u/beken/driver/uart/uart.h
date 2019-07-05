@@ -220,6 +220,10 @@ typedef struct _uart_
 
 #define UART1_TX_WRITE_READY             (REG_READ(REG_UART1_FIFO_STATUS) & FIFO_WR_READY)
 #define UART2_TX_WRITE_READY             (REG_READ(REG_UART2_FIFO_STATUS) & FIFO_WR_READY)
+#define UART1_TX_FIFO_COUNT             (((REG_READ(REG_UART1_FIFO_STATUS)) >> TX_FIFO_COUNT_POSI) & TX_FIFO_COUNT_MASK)
+#define UART2_TX_FIFO_COUNT             (((REG_READ(REG_UART2_FIFO_STATUS)) >> TX_FIFO_COUNT_POSI) & TX_FIFO_COUNT_MASK)
+
+
 
 #define UART_WRITE_BYTE(ch,v)           do                                   \
 										{                                     \

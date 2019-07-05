@@ -360,6 +360,7 @@ void bk_wlan_ap_para_info_get(network_InitTypeDef_ap_st *ap_info);
 #endif
 void bk_wlan_register_monitor_cb(monitor_data_cb_t fn);
 monitor_data_cb_t bk_wlan_get_monitor_cb(void);
+monitor_data_cb_t bk_wlan_get_bcn_cb(void);
 void bk_wlan_enable_lsig(void);
 void bk_wlan_disable_lsig(void);
 int bk_wlan_is_monitor_mode(void);
@@ -396,6 +397,8 @@ int bk_wlan_dtim_rf_ps_mode_disable(void);
  */
 int power_save_dtim_rf_ps_disable_send_msg(void);
 
+extern int bk_wlan_dtim_rf_ps_timer_start(void);
+extern int bk_wlan_dtim_rf_ps_timer_pause(void);
 
 /** @brief  Open dtim with normal flag
  */
@@ -410,6 +413,7 @@ extern int bk_wlan_mcu_ps_mode_disable(void);
 extern int bk_wlan_dtim_rf_ps_mode_do_wakeup();
 extern int bk_wlan_dtim_rf_ps_disable_send_msg(void);
 extern int bk_wlan_dtim_rf_ps_set_linger_time(UINT32 );
+extern UINT32 bk_wlan_dtim_rf_ps_get_sleep_time(void);
 
 extern int bk_wlan_mcu_suppress_and_sleep(UINT32);
 

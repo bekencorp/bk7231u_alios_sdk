@@ -137,7 +137,7 @@ extern INT32 uart_printf(const char *fmt, ...);
 extern void bk_printf(const char *fmt, ...);
 extern void uart_send_byte(UINT8 ch, UINT8 data);
 extern void bk_send_string(UINT8 uport, const char *string);
-extern void uart_wait_tx_over();
+extern UINT32 uart_wait_tx_over();
 extern UINT8 uart_is_tx_fifo_empty(UINT8 uport);
 extern UINT8 uart_is_tx_fifo_full(UINT8 uport);
 extern int uart_read_byte(int uport);

@@ -161,6 +161,8 @@ struct vif_info_tag
             uint32_t mon_last_crc;
             /// Number of beacon losses since last beacon reception
             uint8_t beacon_loss_cnt;
+            /// CRC of fixed beacon ie temp count
+            uint8_t mon_ie_crc_cnt;
             /// CRC of fixed beacon ie
             uint32_t mon_ie_crc;
             #endif

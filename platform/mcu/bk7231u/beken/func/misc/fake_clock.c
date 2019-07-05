@@ -65,6 +65,12 @@ UINT32 fclk_update_tick(UINT32 tick)
 {
     current_clock += tick;
 
+    while(tick >= FCLK_SECOND)
+    {
+        current_seconds ++;
+        tick -= FCLK_SECOND;
+    }
+
     if(second_countdown <= tick)
     {
         current_seconds ++;

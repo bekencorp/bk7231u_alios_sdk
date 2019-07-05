@@ -26,14 +26,6 @@
 #include "uart_pub.h"
 #if CFG_SUPPORT_ALIOS
 #include "ll.h"
-
-extern void do_undefined();
-extern void do_pabort();
-extern void do_dabort();
-extern void do_reserved();
-extern void do_irq( void );
-extern void do_fiq( void );
-extern void do_swi( void );
 #else
 #include "power_save_pub.h"
 #endif
@@ -264,16 +256,14 @@ void intc_init(void)
 {
     UINT32 param;
 
-#if CFG_SUPPORT_ALIOS
-    *((volatile uint32_t *)0x400000) = &do_irq;
-    *((volatile uint32_t *)0x400004) = &do_fiq;
-    *((volatile uint32_t *)0x400008) = &do_swi;
-    *((volatile uint32_t *)0x40000c) = &do_undefined;
-    *((volatile uint32_t *)0x400010) = &do_pabort;
-    *((volatile uint32_t *)0x400014) = &do_dabort;
-    *((volatile uint32_t *)0x400018) = &do_reserved;
+    *((volatile uint32_t *)0x400000) = (uint32_t)&do_irq;
+    *((volatile uint32_t *)0x400004) = (uint32_t)&do_fiq;
+    *((volatile uint32_t *)0x400008) = (uint32_t)&do_swi;
+    *((volatile uint32_t *)0x40000c) = (uint32_t)&do_undefined;
+    *((volatile uint32_t *)0x400010) = (uint32_t)&do_pabort;
+    *((volatile uint32_t *)0x400014) = (uint32_t)&do_dabort;
+    *((volatile uint32_t *)0x400018) = (uint32_t)&do_reserved;
     
-#endif
     intc_enable(FIQ_MAC_GENERAL);
     intc_enable(FIQ_MAC_PROT_TRIGGER);
 
@@ -304,6 +294,58 @@ void intc_deinit(void)
     sddev_control(ICU_DEV_NAME, CMD_ICU_GLOBAL_INT_DISABLE, &param);
 
     return;
+}
+
+void bk_cpu_shutdown()
+{
+    uint32_t level;
+    GLOBAL_INT_DECLARATION();
+    os_printf("shutdown...\n");
+    GLOBAL_INT_DISABLE();
+    while(1);
+}
+void bk_show_register (struct arm_registers *regs)
+{
+    os_printf("Execption:\n");
+    os_printf("r00:0x%08x r01:0x%08x r02:0x%08x r03:0x%08x\n",
+               regs->r0, regs->r1, regs->r2, regs->r3);
+    os_printf("r04:0x%08x r05:0x%08x r06:0x%08x r07:0x%08x\n",
+               regs->r4, regs->r5, regs->r6, regs->r7);
+    os_printf("r08:0x%08x r09:0x%08x r10:0x%08x\n",
+               regs->r8, regs->r9, regs->r10);
+    os_printf("fp :0x%08x ip :0x%08x\n",
+               regs->fp, regs->ip);
+    os_printf("sp :0x%08x lr :0x%08x pc :0x%08x\n",
+               regs->sp, regs->lr, regs->pc);
+    os_printf("cpsr:0x%08x\n", regs->cpsr);
+}
+
+void bk_trap_udef(struct arm_registers *regs)
+{
+    bk_show_register(regs);
+    os_printf("undefined instruction\n");
+    bk_cpu_shutdown();
+}
+
+void bk_trap_pabt(struct arm_registers *regs)
+{
+    bk_show_register(regs);
+    os_printf("prefetch abort\n");
+    bk_cpu_shutdown();
+}
+
+void bk_trap_dabt(struct arm_registers *regs)
+{
+    bk_show_register(regs);
+    os_printf("data abort\n");
+    bk_cpu_shutdown();
+}
+
+void bk_trap_resv(struct arm_registers *regs)
+{
+    os_printf("not used\n");
+    bk_show_register(regs);
+    bk_cpu_shutdown();
 }
 
 /// @}

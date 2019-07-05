@@ -121,6 +121,10 @@ extern void bmsg_ps_sender(uint8_t ioctl);
 extern void ps_fake_data_rx_check(void);
 extern bool ps_sleep_check(void);
 extern u8 rwn_mgmt_is_only_sta_role_add(void);
+extern void power_save_beacon_state_set(PS_STA_BEACON_STATE state);
+extern void power_save_wait_timer_init(void);
+extern void power_save_keep_timer_stop(void);
+extern void power_save_wait_timer_stop(void);
 
 //#define  PS_NEXT_DATA_CK_TM    2500 //5s
 
