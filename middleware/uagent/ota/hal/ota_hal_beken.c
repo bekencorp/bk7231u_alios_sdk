@@ -224,11 +224,12 @@ static int ota_init(void *something)
 {
 	uint32_t offset, delta;
     hal_logic_partition_t *partition_info;
+    ota_boot_param_t *param = (ota_boot_param_t *)something;
 	
     LOG("!!!!!!ota start!!!!!!\n");
 	hal_flash_dis_secure(0, 0, 0);//disable flash protect
 	hal_get_ota_index();
-    offset = *(uint32_t*)something;
+    offset = param->off_bp;
 	if(offset == 0)
 	{
 		if(ota_index == OTA_IMAGE_A)
@@ -507,9 +508,10 @@ static int hal_ota_switch_to_new_fw(void)
 static int ota_init(void *something)
 {
     hal_logic_partition_t *partition_info;
+    ota_boot_param_t *param = (ota_boot_param_t *)something;
 
     LOG("!!!!!!ota start!!!!!!\n");
-    _off_set = *(uint32_t*)something;
+    _off_set = param->off_bp;
     ota_info.ota_len=_off_set;
 	hal_flash_dis_secure(0, 0, 0);//disable flash protect
     if(_off_set == 0)
