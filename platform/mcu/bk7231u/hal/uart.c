@@ -224,32 +224,14 @@ int32_t hal_uart_recv_II(uart_dev_t *uart, void *data, uint32_t expect_size, uin
 
 void uart_rx_cb(uint8_t port, void *param)
 {
-	_uart_drv_t *pdrv;
-	
-	if(port == STDIO_UART)
-	{
-    	pdrv = &_uart_drv[1];
-	}
-	else
-	{
-		pdrv = &_uart_drv[0];
-	}
+	_uart_drv_t *pdrv = &_uart_drv[port];
 
 	rtos_set_semaphore( &pdrv->rx_semphr );
 }
 
 void uart_tx_cb(uint8_t port, void *param)
 {
-	_uart_drv_t *pdrv;
-
-	if(port == STDIO_UART)
-	{
-    	pdrv = &_uart_drv[1];
-	}
-	else
-	{
-		pdrv = &_uart_drv[0];
-	}
+	_uart_drv_t *pdrv = &_uart_drv[port];
 
     rtos_set_semaphore( &pdrv->tx_semphr );
 }
