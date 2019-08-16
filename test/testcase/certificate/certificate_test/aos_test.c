@@ -8,16 +8,16 @@
 #include "cutest/cut.h"
 
 #ifndef SYSINFO_ARCH
-#define SYSINFO_ARCH        "unknown"
+#define SYSINFO_ARCH        "ARM968E-S"
 #endif
 #ifndef SYSINFO_MCU
-#define SYSINFO_MCU         "unknown"
+#define SYSINFO_MCU         "BK7231U"
 #endif
 #ifndef SYSINFO_DEVICE_NAME
-#define SYSINFO_DEVICE_NAME "unknown"
+#define SYSINFO_DEVICE_NAME "BK7231UQFN32"
 #endif
 #ifndef SYSINFO_APP_VERSION
-#define SYSINFO_APP_VERSION "unknown"
+#define SYSINFO_APP_VERSION "app-1.0.0"
 #endif
 #define SYSINFO_KERNEL      "AOS"
 

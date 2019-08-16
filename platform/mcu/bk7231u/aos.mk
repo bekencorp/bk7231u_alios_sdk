@@ -10,7 +10,7 @@ $(NAME)_COMPONENTS := arch_armv5
 $(NAME)_COMPONENTS += newlib_stub rhino yloop alicrypto
 $(NAME)_COMPONENTS += lwip netmgr
 $(NAME)_COMPONENTS += libprov
-#$(NAME)_COMPONENTS += pwrmgmt
+$(NAME)_COMPONENTS += pwrmgmt
 
 GLOBAL_DEFINES += CONFIG_AOS_UOTA_BREAKPOINT
 GLOBAL_DEFINES += CONFIG_AOS_CLI_BOARD
@@ -87,9 +87,9 @@ GLOBAL_DEFINES  += BLE_4_2
 $(NAME)_SOURCES += hal/breeze_hal/breeze_hal_ble.c
 $(NAME)_SOURCES += hal/breeze_hal/breeze_hal_os.c
 $(NAME)_SOURCES += hal/breeze_hal/breeze_hal_sec.c
-$(NAME)_PREBUILT_LIBRARY += beken/driver/ble/ble_lib/ble_lib.a
+$(NAME)_PREBUILT_LIBRARY += beken/driver/ble/ble_lib.a
 
 #Beken entry
 $(NAME)_COMPONENTS += entry
 
-include ./platform/mcu/bk7231u/beken/beken.mk
+$(NAME)_PREBUILT_LIBRARY += beken/beken.a

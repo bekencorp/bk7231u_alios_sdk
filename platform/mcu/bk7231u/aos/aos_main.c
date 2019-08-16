@@ -224,7 +224,7 @@ static void ble_entry_Command(char *pcWriteBuffer, int xWriteBufferLen, int argc
 
 static const struct cli_command cli_cmd_rftest[] = {
 	{"txevm",       "txevm [-m] [-c] [-l] [-r] [-w]", tx_evm_cmd_test},
-	{"rxsens",      "rxsens [-m] [-d] [-c] [-l]",    rx_sens_cmd_test},
+	{"rxsens",      "rxsens [-m] [-d] [-c] [-l]",     rx_sens_cmd_test},
 	{"efuse",       "efuse [-r addr] [-w addr data]", efuse_cmd_test},
     {"efusemac",    "efusemac [-r] [-w] [mac]",       efuse_mac_cmd_test},
     {"bkreg",       "bkreg -w/r addr [value]",        reg_write_read_test},

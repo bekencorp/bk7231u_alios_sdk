@@ -61,7 +61,7 @@ typedef struct sta_param
 extern general_param_t *g_wlan_general_param;
 extern ap_param_t *g_ap_param_ptr;
 extern sta_param_t *g_sta_param_ptr;
-extern uint8_t system_mac[6];
+extern uint8_t system_mac[];
 
 void cfg_load_mac(u8 *mac);
 uint32_t cfg_param_init(void);

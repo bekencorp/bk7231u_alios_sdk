@@ -6,8 +6,6 @@ $(NAME)_SUMMARY    :=
 
 $(NAME)_CFLAGS += -marm
                    
-$(NAME)_SOURCES	 := arch_main.c \
-                    boot_handlers.S \
+$(NAME)_SOURCES	 := boot_handlers.S \
                     boot_vectors.S \
-                    ll.S \
-                    ../../driver/intc/intc.c 
+                    ll.S 

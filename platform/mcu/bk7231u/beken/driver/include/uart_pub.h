@@ -2,9 +2,6 @@
 #define _UART_PUB_H
 
 #include <stdio.h>
-#if CFG_SUPPORT_ALIOS
-#include "aos/hal/uart.h"
-#endif
 
 #if CFG_RELEASE_FIRMWARE
 #define os_printf                       os_null_printf
@@ -68,16 +65,15 @@ typedef struct uart_callback_des
     void  *param;
 }UART_CALLBACK_RX_T, *UART_CALLBACK_RX_PTR;
 
-#if (!CFG_SUPPORT_ALIOS)
 /**
  * UART data width
  */
 typedef enum
 {
-    DATA_WIDTH_5BIT,
-    DATA_WIDTH_6BIT,
-    DATA_WIDTH_7BIT,
-    DATA_WIDTH_8BIT
+    BK_DATA_WIDTH_5BIT,
+    BK_DATA_WIDTH_6BIT,
+    BK_DATA_WIDTH_7BIT,
+    BK_DATA_WIDTH_8BIT
 } uart_data_width_t;
 
 /**
@@ -118,8 +114,7 @@ typedef struct
     uart_stop_bits_t	      stop_bits;
     uart_flow_control_t       flow_control;
     uint8_t				      flags;	 /**< if set, UART can wake up MCU from stop mode, reference: @ref UART_WAKEUP_DISABLE and @ref UART_WAKEUP_ENABLE*/
-} uart_config_t;
-#endif
+} bk_uart_config_t;
 /*******************************************************************************
 * Function Declarations
 *******************************************************************************/

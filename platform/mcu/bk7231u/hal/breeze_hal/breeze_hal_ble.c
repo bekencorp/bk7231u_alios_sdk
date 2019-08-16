@@ -106,11 +106,11 @@ ais_err_t ble_stack_init(ais_bt_init_t *info, stack_init_done_t init_done)
 {
     memcpy((uint8_t *)&ais_bt_init_info,(uint8_t *)info,sizeof(ais_bt_init_t));
     
-    ble_activate(NULL);
 	stack_init_done = init_done;
     ble_set_write_cb(ble_write_callback);    
 	ble_set_event_cb(ble_event_callback);    
 	ble_set_read_cb(ble_read_callback);    
+    ble_activate(NULL);
 	return AIS_ERR_SUCCESS;
 }
 

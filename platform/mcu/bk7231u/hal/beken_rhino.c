@@ -132,6 +132,10 @@ OSStatus rtos_init_semaphore( beken_semaphore_t* semaphore, int count )
 {
     kstat_t ret;
 
+	if(count > 0)
+	{
+		count--;
+	}
     ret = krhino_sem_dyn_create((ksem_t **)semaphore, "sema", count);
 
     if (ret == RHINO_SUCCESS) {
@@ -362,6 +366,17 @@ static void timmer_wrapper(void *timer, void *arg)
     }
 }
 
+static void timmer2_wrapper(void *timer, void *arg)
+{
+    (void)timer;
+
+    beken2_timer_t *timer_arg = arg;
+
+    if (timer_arg->function != 0) {
+        timer_arg->function(timer_arg->left_arg, timer_arg->right_arg);
+    }
+}
+
 OSStatus rtos_init_timer( beken_timer_t* timer, uint32_t time_ms, timer_handler_t function, void* arg )
 {
     kstat_t ret;
@@ -371,23 +386,6 @@ OSStatus rtos_init_timer( beken_timer_t* timer, uint32_t time_ms, timer_handler_
 
     ret = krhino_timer_dyn_create((ktimer_t **)(&timer->handle),"timer", timmer_wrapper, 
                                   krhino_ms_to_ticks(time_ms), krhino_ms_to_ticks(time_ms), timer, 0);
-
-    if (ret == RHINO_SUCCESS) {
-        return kNoErr;
-    }
-
-    return kGeneralErr;
-}
-
-OSStatus rtos_init_oneshot_timer( beken_timer_t* timer, uint32_t time_ms, timer_handler_t function, void* arg )
-{
-    kstat_t ret;
-
-    timer->function = function;
-    timer->arg      = arg;
-
-    ret = krhino_timer_dyn_create((ktimer_t **)(&timer->handle),"timer", timmer_wrapper, 
-                                  krhino_ms_to_ticks(time_ms), 0, timer, 0);
 
     if (ret == RHINO_SUCCESS) {
         return kNoErr;
@@ -479,3 +477,76 @@ bool rtos_is_timer_init( beken_timer_t* timer )
     return true;
 }
 
+OSStatus rtos_init_oneshot_timer( beken2_timer_t *timer, 
+									uint32_t time_ms, 
+									timer_2handler_t function,
+									void* larg, 
+									void* rarg )
+{
+    kstat_t ret;
+
+    timer->function  = function;
+    timer->left_arg  = larg;
+	timer->right_arg = rarg;
+
+    ret = krhino_timer_dyn_create((ktimer_t **)(&timer->handle),"timer", timmer2_wrapper, 
+                                  krhino_ms_to_ticks(time_ms), 0, timer, 0);
+
+    if (ret == RHINO_SUCCESS) {
+        return kNoErr;
+    }
+
+    return kGeneralErr;
+}
+
+OSStatus rtos_start_oneshot_timer( beken2_timer_t* timer )
+{
+    kstat_t ret;
+
+    ret = krhino_timer_start((ktimer_t *)(timer->handle));
+
+    if (ret == RHINO_SUCCESS) {
+        return kNoErr;
+    }
+
+    return kGeneralErr;
+}
+
+OSStatus rtos_stop_oneshot_timer( beken2_timer_t* timer )
+{
+    kstat_t ret;
+
+    ret = krhino_timer_stop((ktimer_t *)(timer->handle));
+
+
+    if (ret == RHINO_SUCCESS) {
+        return kNoErr;
+    }
+
+    return kGeneralErr;
+}
+
+OSStatus rtos_deinit_oneshot_timer( beken2_timer_t* timer )
+{
+    kstat_t ret;
+
+
+    krhino_timer_stop((ktimer_t *)(timer->handle));
+    ret = krhino_timer_dyn_del((ktimer_t *)(timer->handle));
+
+    if (ret == RHINO_SUCCESS) {
+        return kNoErr;
+    }
+
+    return kGeneralErr;
+}
+
+bool rtos_is_oneshot_timer_init( beken2_timer_t* timer )
+{
+	if (timer == NULL)
+		return false;
+	if (timer->handle == NULL)
+		return false;
+
+    return true;
+}

@@ -63,7 +63,6 @@ extern UINT32 manual_cal_load_adc_cali_flash(void);
 extern void rwnx_cal_set_reg_mod_pa(UINT16 reg_mod, UINT16 reg_pa);
 extern void rwnx_cal_do_temp_detect(UINT16 cur_val, UINT16 thre, UINT16 *last);
 extern void rwnx_cal_set_lpfcap_iq(UINT32 lpfcap_i, UINT32 lpfcap_q);
-extern void rwnx_cal_set_40M_extra_setting(UINT8 val);
 extern void rwnx_cal_set_40M_setting(void);
 
 

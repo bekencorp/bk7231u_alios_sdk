@@ -42,7 +42,7 @@
 #include "boot.h"
 #include "ll.h"
 #include "compiler.h"
-#include "rwnx_config.h"
+//#include "rwnx_config.h"
 #include "generic.h"
 
 /*

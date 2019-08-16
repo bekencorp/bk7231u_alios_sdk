@@ -5,10 +5,13 @@
 #include "typedef.h"
 #include "generic.h"
 #include "compiler.h"
-#if (!CFG_SUPPORT_ALIOS)
+
 #include "arch.h"
-#if (!CFG_SUPPORT_RTT)
+
+#if CFG_ENABLE_DEMO_TEST
 #include "demos_config.h"
 #endif
-#endif
+
 #endif // _INCLUDES_H_ 
+// eof
+

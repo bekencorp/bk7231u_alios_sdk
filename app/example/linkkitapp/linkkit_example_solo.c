@@ -16,11 +16,6 @@
 #include "combo_devinfo.h"
 #else
 // for demo only
-#define PRODUCT_KEY     "a1ec6boKYSt"
-#define PRODUCT_SECRET  "oEQwArRCgA3G0OzK"
-#define DEVICE_NAME     "John_test"
-#define DEVICE_SECRET   "mYAFwRtfX2Nx4b8Ww5ribQUpwjvr8RIB"
-#if 0
 #ifndef SUPPORT_DEV_AP
 #define PRODUCT_KEY      "a1X2bEnP82z"
 #define PRODUCT_SECRET   "7jluWm1zql7bt8qK"
@@ -31,7 +26,6 @@
 #define PRODUCT_SECRET   "0sfrKE4XYeO4yLLa"
 #define DEVICE_NAME      "ada_2nd_test02"
 #define DEVICE_SECRET    "35UOZZWzlBNG3bCm78e9eniAyV0txh4R"
-#endif
 #endif
 #endif
 

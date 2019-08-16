@@ -9,7 +9,6 @@
 #include "rtos_pub.h"
 #include "drv_model_pub.h"
 #include "flash_pub.h"
-#include "ll.h"
 
 extern wdg_dev_t wdg;
 

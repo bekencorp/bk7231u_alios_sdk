@@ -12,6 +12,7 @@
 #include "mm.h"
 #include "lwip/netif.h"
 #include "vif_mgmt.h"
+#include "rw_msg_pub.h"
 
 #define RWI_DEBUG
 
@@ -63,29 +64,6 @@ typedef struct cfg80211_disconnect_params
     uint8_t vif_idx;
 }DISCONNECT_PARAM_T;
 
-typedef struct scanu_rst_upload
-{
-    UINT8 scanu_num;
-    struct sta_scan_res **res;
-}SCAN_RST_UPLOAD_T, *SCAN_RST_UPLOAD_PTR;
-
-
-typedef struct sta_scan_res
-{
-    UINT8 bssid[6];
-    char ssid[32];  /**< The SSID of an access point. */
-    char on_channel; // 1: ds IE channel=center_freq, 0: !=   
-    char channel;
-    UINT16 beacon_int;
-    UINT16 caps;
-    int level;
-	int security; // security type
-    UINT8 tsf[8];
-    UINT32 ie_len;
-    /* Followed by ie_len of IE data */
-}SCAN_RST_ITEM_T, *SCAN_RST_ITEM_PTR;
-
-
 typedef struct 
 {  
     char ssid[MAC_SSID_LEN]; 
@@ -113,16 +91,6 @@ typedef struct
     uint8_t bssid[6];
     uint16_t freq;
 }BSS_INFO_T;
-
-typedef enum {
-	MSG_IDLE = 0,
-	MSG_CONNECTING,
-	MSG_PASSWD_WRONG,
-	MSG_NO_AP_FOUND,
-	MSG_CONN_FAIL,
-	MSG_CONN_SUCCESS,
-	MSG_GOT_IP,
-}msg_sta_states;
 
 enum nl80211_iftype {
 	NL80211_IFTYPE_UNSPECIFIED,
@@ -204,7 +172,6 @@ typedef struct bcn_param_st {
 
 typedef struct vif_info_tag VIF_INF_ST;
 typedef struct vif_info_tag* VIF_INF_PTR;
-
 typedef struct sta_info_tag STA_INF_ST;
 typedef struct sta_info_tag* STA_INF_PTR;
 
@@ -228,8 +195,6 @@ extern UINT32 rwm_transfer(UINT8 vif_idx, UINT8 *buf, UINT32 len);
 extern void* rwm_transfer_pre(UINT8 vif_idx, UINT8 *buf, UINT32 len);
 extern UINT32 rwm_uploaded_data_handle(UINT8 *upper_buf, UINT32 len);
 extern UINT32 rwm_get_rx_valid_node_len(void);
-extern void mhdr_set_station_status(msg_sta_states val);
-extern msg_sta_states mhdr_get_station_status(void);
 
 //
 extern void user_callback_func_register(FUNC_1PARAM_PTR sta_connect_start_func,
@@ -324,6 +289,8 @@ __INLINE void *rwm_mgmt_get_addr(u8 vif_idx)
 
 extern UINT8 beacon[149];
 
+UINT8 rw_ieee80211_init_scan_chan(struct scanu_start_req *req);
+UINT8 rw_ieee80211_is_scan_rst_in_countrycode(UINT8 freq);
 
 #endif //_RW_PUB_H_
 // eof

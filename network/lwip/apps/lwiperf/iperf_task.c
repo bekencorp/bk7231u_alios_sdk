@@ -1220,15 +1220,15 @@ count_t iperf_diff_count( count_t pkt_count, count_t tmp_count )
 
 void iperf_get_current_time( uint32_t *s, uint32_t *ms )
 {
-	uint64_t now = aos_now_ms();
+
     if ( s )
     {
-		*s = (uint32_t)(now/1000);
+        *s = aos_now();
     }
 
     if ( ms )
     {
-		*ms = (uint32_t)(now);
+        *ms = aos_now_ms();
     }
 }
 

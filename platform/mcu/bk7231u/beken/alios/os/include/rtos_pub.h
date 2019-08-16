@@ -3,6 +3,7 @@
 
 #include "include.h"
 #include "typedef.h"
+#include "error.h"
 
 #pragma once
 
@@ -580,7 +581,6 @@ uint32_t rtos_get_time(void);
   * @return    kGeneralErr   : if an error occurred
   */
 OSStatus rtos_init_timer( beken_timer_t* timer, uint32_t time_ms, timer_handler_t function, void* arg );
-OSStatus rtos_init_oneshot_timer( beken_timer_t* timer, uint32_t time_ms, timer_handler_t function, void* arg );
 
 /** @brief    Starts a RTOS timer running
   *
@@ -663,6 +663,11 @@ int rtos_deinit_event_fd(int fd);
 /**
   * @}
   */
+OSStatus rtos_init_oneshot_timer( beken2_timer_t* timer, uint32_t time_ms, timer_2handler_t function, void* larg, void* rarg );
+OSStatus rtos_start_oneshot_timer( beken2_timer_t* timer );
+OSStatus rtos_stop_oneshot_timer( beken2_timer_t* timer );
+OSStatus rtos_deinit_oneshot_timer( beken2_timer_t* timer );
+bool rtos_is_oneshot_timer_init( beken2_timer_t* timer );
 
 #endif // __RTOS_PUB__
 // EOF

@@ -79,6 +79,9 @@ enum
     CMD_SCTRL_SET_LINEIN_VOLUME_ANALOG,    
     CMD_SCTRL_SET_VOLUME_PORT,
     CMD_SCTRL_SET_AUD_DAC_MUTE,
+    CMD_SCTRL_USB_CHARGE_CAL,
+    CMD_SCTRL_USB_CHARGE_START,
+    CMD_SCTRL_USB_CHARGE_STOP,
 	#endif // (CFG_SOC_NAME == SOC_BK7221)
     CMD_SCTRL_SET_LOW_PWR_CLK,
     CMD_SCTRL_SET_VDD_VALUE,
@@ -181,6 +184,13 @@ typedef struct efuse_oper_st
     UINT8 data;    
 } EFUSE_OPER_ST, *EFUSE_OPER_PTR;
 
+typedef struct charge_oper_st
+{
+    UINT8 type;
+    UINT8 oper;
+    UINT8 cal[3];
+} CHARGE_OPER_ST, *CHARGE_OPER_PTR;
+
 #define AUDIO_DAC_VOL_DIFF_MODE                      (0)
 #define AUDIO_DAC_VOL_SINGLE_MODE                    (1)
 
@@ -226,5 +236,7 @@ extern void sctrl_sta_rf_wakeup(void);
 extern void sctrl_sta_ps_init(void);
 extern void sctrl_flash_select_dco(void);
 extern UINT8 sctrl_if_rf_sleep(void);
+extern UINT32 charger_is_full(void);
+extern UINT32 usb_is_pluged(void);
 
 #endif // _SCTRL_PUB_H_

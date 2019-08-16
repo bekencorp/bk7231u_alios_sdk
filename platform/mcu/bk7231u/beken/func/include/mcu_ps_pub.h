@@ -10,14 +10,14 @@ typedef struct  mcu_ps
     UINT8 mcu_ps_on;
     int peri_busy_count;
     UINT32 mcu_prevent;
-}MCU_PS_INFO;
+} MCU_PS_INFO;
 
 typedef struct  sctrl_mcu_ps
 {
     UINT8 hw_sleep ;
-    UINT8 first_sleep ;    
+    UINT8 first_sleep ;
     UINT8 mcu_use_dco;
-}SCTRL_MCU_PS_INFO;
+} SCTRL_MCU_PS_INFO;
 
 #define     MCU_PS_CONNECT      CO_BIT(0)
 #define     MCU_PS_ADD_KEY      CO_BIT(1)
@@ -38,7 +38,7 @@ extern UINT32 peri_busy_count_get(void );
 extern UINT32 mcu_prevent_get(void );
 extern UINT32 fclk_update_tick(UINT32 tick);
 extern void mcu_ps_dump(void);
-extern void ps_pwm0_reconfig(UINT32 ,UINT8 );
+extern void ps_pwm0_reconfig(UINT32 , UINT8 );
 extern void ps_pwm0_resume_tick(void);
 extern void ps_pwm0_suspend_tick(UINT32 );
 extern void ps_pwm0_disable(void );

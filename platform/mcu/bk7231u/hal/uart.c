@@ -39,7 +39,7 @@ int32_t hal_uart_init(uart_dev_t *uart)
     _uart_drv_t *pdrv;
     UINT32 status;
     DD_HANDLE uart_hdl;
-
+	
     if(uart->port == STDIO_UART)
     {
         uart_hdl = ddev_open(UART2_DEV_NAME, &status, 0);
@@ -59,7 +59,7 @@ int32_t hal_uart_init(uart_dev_t *uart)
 		
         pdrv->status = _UART_STATUS_OPENED;
     }
-	
+
     ddev_control(uart_hdl, CMD_UART_INIT, (void *)&uart->config);
 	
 	uart_rx_callback.callback = uart_rx_cb;

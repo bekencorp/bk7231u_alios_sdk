@@ -88,10 +88,10 @@ typedef enum
 
 typedef struct
 {
-    uint8  advData[MAX_ADV_DATA_LEN];
-    uint8  advDataLen;
-    uint8  respData[MAX_ADV_DATA_LEN];
-    uint8  respDataLen;
+    uint8 advData[MAX_ADV_DATA_LEN];
+    uint8 advDataLen;
+    uint8 respData[MAX_ADV_DATA_LEN];
+    uint8 respDataLen;
     uint8  channel_map;
     uint16 interval_min;
     uint16 interval_max;

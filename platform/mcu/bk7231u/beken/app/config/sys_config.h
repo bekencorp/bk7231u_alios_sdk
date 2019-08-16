@@ -1,6 +1,9 @@
 #ifndef _SYS_CONFIG_H_
 #define _SYS_CONFIG_H_
 
+/* CFG_RF_OTA_TEST enable, and disable CFG_RC of rw_config.h*/
+#define CFG_RF_OTA_TEST                            0
+
 /*SUMMARY: macro--1: OPEN; --0:CLOSE*/
 
 /* uart2 for debug, and generally, uart1 is used for communication.
@@ -13,9 +16,8 @@
 #define CFG_IEEE80211N                             1
 
 /*section 1-----OS macro config-----*/
-#define CFG_OS_FREERTOS                            1
+#define CFG_OS_FREERTOS                            0
 
-#if CFG_OS_FREERTOS
 #define THD_APPLICATION_PRIORITY                   3
 #define THD_CORE_PRIORITY                          2
 #define THD_UMP3_PRIORITY                          4
@@ -25,9 +27,9 @@
 #define THD_RECONNECT_PRIORITY                     4
 #define THD_MEDIA_PRIORITY						   4
 #define THD_WPAS_PRIORITY                          5
+#define THD_EXTENDED_APP_PRIORITY                  5
 #define THD_HOSTAPD_PRIORITY                       5
 #define THDD_KEY_SCAN_PRIORITY					   7
-#endif // CFG_OS_FREERTOS
 
 /*section 2-----function macro config-----*/
 #define CFG_TX_EVM_TEST                            1
@@ -35,6 +37,7 @@
 #define CFG_ROLE_LAUNCH                            0
 #define CFG_ENABLE_BUTTON                          0
 #define CFG_UDISK_MP3                              0
+#define CFG_EASY_FLASH                             0
 
 /*section 3-----driver macro config-----*/
 #define CFG_MAC_PHY_BAPASS                         1
@@ -58,6 +61,8 @@
 #define CFG_SUPPORT_CCD                            0
 #define CFG_SUPPORT_UVC                            0
 #endif
+#define CFG_USE_USB_CHARGE                         0
+
 
 /*section 4-----DEBUG macro config-----*/
 #define CFG_UART_DEBUG                             0
@@ -66,6 +71,8 @@
 #define CFG_SUPPORT_BKREG                          1
 #define CFG_ENABLE_WPA_LOG                         0
 #define CFG_IPERF_TEST                             0
+#define CFG_TCP_SERVER_TEST                        0
+#define CFG_AIRKISS_TEST                           0
 #define CFG_ENABLE_DEMO_TEST                       0
 
 /*section 5-----PRODUCT macro config-----*/
@@ -109,7 +116,7 @@
 #define CFG_USE_CAMERA_INTF                        0
 
 /*section 13-----for GENERRAL DMA */
-#define CFG_GENERAL_DMA                            0
+#define CFG_GENERAL_DMA                            1
 
 /*section 14-----for FTPD UPGRADE*/
 #define CFG_USE_FTPD_UPGRADE                       0
@@ -118,16 +125,19 @@
 #define CFG_SUPPORT_TIANZHIHENG_DRONE              0
 
 /*section 16-----support mcu & deep sleep*/
+#define CFG_USE_MCU_PS                             1
 #if (CFG_SUPPORT_ALIOS)
 #define CFG_USE_MCU_PS                             RHINO_CONFIG_PWRMGMT
-#else
-#define CFG_USE_MCU_PS                             1
 #endif
 #define CFG_USE_DEEP_PS                            1
 #define CFG_USE_BLE_PS                             0
 
 /*section 17-----support sta power sleep*/
+#if CFG_RF_OTA_TEST
+#define CFG_USE_STA_PS                             0
+#else
 #define CFG_USE_STA_PS                             1
+#endif
 
 /*section 18-----AP support stas in power save*/
 #define CFG_USE_AP_PS                              0
@@ -156,9 +166,10 @@
 #define CFG_USE_AUD_DAC                            0
 #define CFG_USE_AUD_ADC                            0
 
+#define CFG_SUPPORT_BLE                            1
+
 #define CFG_RF_USER_BLE                            1
 #define CFG_RF_USER_WIFI                           2
-
 #define CFG_DEFAULT_RF_USER                        CFG_RF_USER_WIFI
 
 #endif // _SYS_CONFIG_H_

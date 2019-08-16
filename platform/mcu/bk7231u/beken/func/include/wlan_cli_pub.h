@@ -28,8 +28,6 @@
 #define INBUF_SIZE      128
 #define OUTBUF_SIZE     2048
 
-#define LOG_SERVICE_BUFLEN 100
-
 /** Structure for registering CLI commands */
 struct cli_command
 {

@@ -3,7 +3,7 @@
  */
 
 #include "aos/hal/gpio.h"
-#include "rtos_pub.h"
+#include "aos/kernel.h"
 #include "gpio_pub.h"
 
 typedef struct
