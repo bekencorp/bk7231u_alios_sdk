@@ -56,9 +56,7 @@ $(NAME)_DEFINES += CONFIG_PRINT_HEAP
 endif
 
 
-ifeq ($(AOS_MCU_RDA5981X),y)
 GLOBAL_DEFINES += SUPPORT_DEV_AP
-endif
 
 ifneq ($(HOST_MCU_FAMILY),mcu_esp8266)
 $(NAME)_COMPONENTS  += cli

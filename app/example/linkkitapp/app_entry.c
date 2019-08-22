@@ -411,7 +411,7 @@ int application_start(int argc, char **argv)
 #ifdef EN_COMBO_NET
     combo_net_init();
 #else
-#ifdef SUPPORT_DEV_AP
+#if 0//def SUPPORT_DEV_AP
      aos_task_new("dap_open", awss_open_dev_ap, NULL, 4096);
 #else
     aos_task_new("netmgr_start", start_netmgr, NULL, 4096);

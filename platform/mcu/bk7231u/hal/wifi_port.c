@@ -270,6 +270,34 @@ static int wlan_send_80211_raw_frame(hal_wifi_module_t *m, uint8_t *buf, int len
     return bk_wlan_send_80211_raw_frame(buf, len); // len-4=exclude FCS
 }
 
+static int start_ap(hal_wifi_module_t *m, const char *ssid, const char *passwd, int interval, int hide)
+{
+    int ret;
+	network_InitTypeDef_st network_init;
+	char default_ip[] = "192.168.1.1";
+	char default_gateway[] = "192.168.1.1";
+	char default_netmask[] = "255.255.255.0";
+
+	os_memset(&network_init, 0, sizeof(network_InitTypeDef_st));
+	network_init.wifi_mode = BK_SOFT_AP;
+	os_strcpy(network_init.wifi_ssid, ssid);
+	os_strcpy(network_init.wifi_key, passwd);
+	network_init.dhcp_mode = DHCP_SERVER;
+	os_strcpy(network_init.local_ip_addr, default_ip);
+	os_strcpy(network_init.net_mask, default_netmask);
+	os_strcpy(network_init.gateway_ip_addr, default_gateway);
+	os_strcpy(network_init.dns_server_ip_addr, default_gateway);
+
+	ret = bk_wlan_start(&network_init);
+
+    return ret;
+}
+
+static int stop_ap(hal_wifi_module_t *m)
+{
+    return bk_wlan_suspend_softap();
+}
+
 void NetCallback(IPStatusTypedef *pnet)
 {
 	hal_wifi_ip_stat_t net_stat;
@@ -359,6 +387,8 @@ hal_wifi_module_t sim_aos_wifi_beken = {
     .get_link_stat       =  get_link_stat,
     .start_scan          =  start_scan,
     .start_scan_adv      =  start_scan_adv,
+    .start_ap            =  start_ap,
+    .stop_ap             =  stop_ap,
     .power_off           =  power_off,
     .power_on            =  power_on,
     .suspend             =  suspend,
