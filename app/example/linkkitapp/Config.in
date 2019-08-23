@@ -15,7 +15,7 @@ if AOS_APP_LINKKITAPP
 # Configurations for app linkkitapp
 config LINKKITAPP_CONFIG_COMBOAPP
     bool "Enable Breeze AWSS "
-    default n
+    default y
     help 
         Providing secured ble link for wifi provision.
 

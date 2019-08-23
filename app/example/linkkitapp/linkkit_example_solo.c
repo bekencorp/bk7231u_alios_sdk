@@ -16,17 +16,10 @@
 #include "combo_devinfo.h"
 #else
 // for demo only
-#ifndef SUPPORT_DEV_AP
-#define PRODUCT_KEY      "a1X2bEnP82z"
-#define PRODUCT_SECRET   "7jluWm1zql7bt8qK"
-#define DEVICE_NAME      "example1"
-#define DEVICE_SECRET    "ga7XA6KdlEeiPXQPpRbAjOZXwG8ydgSe"
-#else
-#define PRODUCT_KEY      "a1PcArcq23G"
-#define PRODUCT_SECRET   "0sfrKE4XYeO4yLLa"
-#define DEVICE_NAME      "ada_2nd_test02"
-#define DEVICE_SECRET    "35UOZZWzlBNG3bCm78e9eniAyV0txh4R"
-#endif
+#define PRODUCT_KEY      "a1ec6boKYSt"
+#define PRODUCT_SECRET   "oEQwArRCgA3G0OzK"
+#define DEVICE_NAME      "lamp_test"
+#define DEVICE_SECRET    "Z6m63PAZMZyunQmX5VbOahODiNlq3Zbo"
 #endif
 
 #if USE_CUSTOME_DOMAIN

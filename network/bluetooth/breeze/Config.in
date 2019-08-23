@@ -18,7 +18,7 @@ if AOS_COMP_BREEZE
 
     config CONFIG_COMP_BZ_EN_AWSS
         bool "Enable AWSS, providing secured ble link for wifi provision."
-        default n
+        default y
 
     config CONFIG_COMP_BZ_EN_AUTH
         bool "Enable authentication."
@@ -26,6 +26,6 @@ if AOS_COMP_BREEZE
 
     config CONFIG_COMP_BZ_BUILTIN_HAL
         bool "Enable default built-in HALs:blestack, AliOS Things and crypto."
-        default y
+        default n
 
 endif

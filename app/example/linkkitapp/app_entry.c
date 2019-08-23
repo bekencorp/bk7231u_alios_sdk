@@ -269,6 +269,22 @@ void do_awss()
 }
 #endif
 
+#ifdef EN_COMBO_NET
+void awss_open_dev_ble(void *p)
+{
+    combo_net_init();
+    aos_task_exit(0);
+}
+
+void do_awss_dev_ble()
+{
+    aos_task_new("netmgr_stop", stop_netmgr, NULL, 4096);
+    netmgr_clear_ap_config();
+    aos_task_new("ble_open", awss_open_dev_ble, NULL, 4096);
+}
+
+#endif
+
 static void linkkit_reset(void *p)
 {
     netmgr_clear_ap_config();
@@ -338,6 +354,16 @@ static struct cli_command resetcmd = { .name     = "reset",
 static struct cli_command awss_enable_cmd = { .name     = "active_awss",
                                               .help     = "active_awss [start]",
                                               .function = handle_active_cmd };
+#ifdef EN_COMBO_NET
+static void handle_dev_ble_cmd(char *pwbuf, int blen, int argc, char **argv)
+{
+    aos_schedule_call(do_awss_dev_ble, NULL);
+}
+
+static struct cli_command awss_ble_cmd = { .name     = "dev_ble",
+                                           .help     = "awss_dev_ble [start]",
+                                           .function = handle_dev_ble_cmd };
+#endif
 #endif
 
 #ifdef CONFIG_PRINT_HEAP
@@ -404,18 +430,17 @@ int application_start(int argc, char **argv)
     aos_cli_register_command(&awss_dev_ap_cmd);
     aos_cli_register_command(&awss_cmd);
 #endif
+#ifdef EN_COMBO_NET
+    aos_cli_register_command(&awss_ble_cmd);
+#endif
 #endif
     set_iotx_info();
     IOT_SetLogLevel(IOT_LOG_DEBUG);
 
-#ifdef EN_COMBO_NET
-    combo_net_init();
-#else
 #if 0//def SUPPORT_DEV_AP
      aos_task_new("dap_open", awss_open_dev_ap, NULL, 4096);
 #else
     aos_task_new("netmgr_start", start_netmgr, NULL, 4096);
-#endif
 #endif
     aos_loop_run();
 
