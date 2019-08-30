@@ -77,47 +77,18 @@ void krhino_mm_alloc_hook(void *mem, size_t size)
     (void)size;
 }
 
-
-UINT32 global_tick = 0;
-extern tick_t	  g_tick_count;
 void krhino_idle_hook(void)
 {
-	UINT32 mcu_ps_tick = 24;
-	UINT32 mcu_miss_tick = 0;
-
-#if 0//(NX_POWERSAVE)
-    GLOBAL_INT_DECLARATION();
-    CPSR_ALLOC();
-
-    if (ke_evt_get() != 0)
-    {
-        return ;
     }
-
-    if(!bmsg_is_empty())
-    {
-        return ;
-    }
-
-    GLOBAL_INT_DISABLE();
-    if((INT32)(global_tick + (UINT32)1 - g_tick_count) <=  0)
-	{
-	    
-	    mcu_miss_tick = mcu_power_save(mcu_ps_tick);
-        #if 0
-	    RHINO_CPU_INTRPT_DISABLE();   
-	    g_tick_count += mcu_miss_tick;
-	    global_tick = g_tick_count;
-	    RHINO_CPU_INTRPT_ENABLE();
-        #else
-        tick_list_update(mcu_miss_tick);
-        global_tick = g_tick_count;
-        #endif
-	}
-    GLOBAL_INT_RESTORE();
-#endif //(NX_POWERSAVE)
-}
 #endif
+void krhino_update_sys_tick(sys_time_t lost)
+	{
+    CPSR_ALLOC();
+	    
+	    RHINO_CPU_INTRPT_DISABLE();   
+    g_tick_count += lost;
+	    RHINO_CPU_INTRPT_ENABLE();
+}
 
 extern void         *heap_start;
 extern void         *heap_end;

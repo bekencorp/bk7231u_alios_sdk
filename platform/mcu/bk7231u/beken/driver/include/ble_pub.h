@@ -211,7 +211,7 @@ void ble_set_role_mode(ble_role_t role);
 ble_role_t ble_get_role_mode();
 
 
-typedef struct temp_message 
+typedef struct ble_message 
 {
 	uint32_t data;
 }BLE_MSG_T;

@@ -96,7 +96,7 @@
 #define CFG_SUPPORT_CALIBRATION                    1
 #define CFG_SUPPORT_MANUAL_CALI                    1
 //tpc rf pa map power for bk7231u
-#define CFG_SUPPORT_TPC_PA_MAP                     0
+#define CFG_SUPPORT_TPC_PA_MAP                     1
 #endif
 
 /*section 8-----for netstack*/
@@ -109,7 +109,7 @@
 #define CFG_BK7221_MDM_WATCHDOG_PATCH              0
 
 /*section 11-----temperature detect*/
-#define CFG_USE_TEMPERATURE_DETECT                 0
+#define CFG_USE_TEMPERATURE_DETECT                 1
 
 /*section 12-----for SPIDMA interface*/
 #define CFG_USE_SPIDMA                             0

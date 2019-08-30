@@ -1,6 +1,6 @@
 menuconfig AOS_COMP_PWRMGMT
     bool "Power Management"
-    default n
+    default y
     help
         power management. This module is used to reduce the system power consumption.
 
