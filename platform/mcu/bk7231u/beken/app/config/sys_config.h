@@ -9,7 +9,7 @@
 /* uart2 for debug, and generally, uart1 is used for communication.
    what is more, uart1 maybe is not bound out*/
 #define CFG_USE_UART1                              1
-#define CFG_JTAG_ENABLE                            1
+#define CFG_JTAG_ENABLE                            0
 #define OSMALLOC_STATISTICAL                       0
 
 /*section 0-----app macro config-----*/

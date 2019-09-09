@@ -162,7 +162,7 @@ extern void power_save_wait_timer_set(void );
 
 
 /***************************************************************************/
-#if ((1 == CFG_USE_BLE_PS) && (1 == CFG_USE_STA_PS))
+#if ((1 == CFG_USE_STA_PS))
 #define CHECK_STA_BLE_RF_IF_IN_SLEEP()                                  \
     do {                                                                \
     GLOBAL_INT_DECLARATION();                                           \
@@ -192,8 +192,7 @@ extern void power_save_wait_timer_set(void );
     }
 #endif
 
-#if CFG_USE_BLE_PS
-#define CHECK_BLE_RF_IF_IN_SLEEP()                                      \
+#define CHECK_RF_IF_IN_SLEEP()                                      \
     do {                                                                \
     GLOBAL_INT_DECLARATION();                                           \
     GLOBAL_INT_DISABLE();                                               \
@@ -201,20 +200,23 @@ extern void power_save_wait_timer_set(void );
     {                                                                   \
         sctrl_rf_wakeup();                                              \
     }
+
+#if CFG_USE_BLE_PS
+#define CHECK_BLE_RF_IF_IN_SLEEP()          CHECK_RF_IF_IN_SLEEP()
 #endif
+
 /***************************************************************************/
 
 #if((0 == CFG_USE_BLE_PS) && (0 == CFG_USE_STA_PS))
 #define CHECK_OPERATE_RF_REG_IF_IN_SLEEP()
 #define CHECK_OPERATE_RF_REG_IF_IN_SLEEP_END()
-#elif (CFG_USE_STA_PS && (0 == CFG_USE_BLE_PS))
-#define CHECK_OPERATE_RF_REG_IF_IN_SLEEP()      CHECK_STA_RF_IF_IN_SLEEP()
-#define CHECK_OPERATE_RF_REG_IF_IN_SLEEP_END()  CHECK_RF_REG_IF_IN_SLEEP_END()
 #elif (CFG_USE_BLE_PS && (0 == CFG_USE_STA_PS))
 #define CHECK_OPERATE_RF_REG_IF_IN_SLEEP()      CHECK_BLE_RF_IF_IN_SLEEP()
 #define CHECK_OPERATE_RF_REG_IF_IN_SLEEP_END()  CHECK_RF_REG_IF_IN_SLEEP_END()
-#elif ((1 == CFG_USE_BLE_PS) && (1 == CFG_USE_STA_PS))
-#define CHECK_OPERATE_RF_REG_IF_IN_SLEEP()      CHECK_STA_BLE_RF_IF_IN_SLEEP()
+#elif ((1 == CFG_USE_STA_PS))
+#define CHECK_NEED_WAKE_IF_STA_IN_SLEEP()      CHECK_STA_BLE_RF_IF_IN_SLEEP()
+#define CHECK_NEED_WAKE_IF_STA_IN_SLEEP_END()  CHECK_RF_REG_IF_IN_SLEEP_END()
+#define CHECK_OPERATE_RF_REG_IF_IN_SLEEP()      CHECK_RF_IF_IN_SLEEP()
 #define CHECK_OPERATE_RF_REG_IF_IN_SLEEP_END()  CHECK_RF_REG_IF_IN_SLEEP_END()
 #endif
 
