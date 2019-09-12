@@ -23,8 +23,22 @@
 #endif
 
 #if USE_CUSTOME_DOMAIN
-    #define CUSTOME_DOMAIN_MQTT     "iot-as-mqtt.cn-shanghai.aliyuncs.com"
-    #define CUSTOME_DOMAIN_HTTP     "iot-auth.cn-shanghai.aliyuncs.com"
+const char * g_infra_mqtt_domain[IOTX_CLOUD_DOMAIN_MAX] = {
+	"iot-as-mqtt.cn-shanghai.aliyuncs.com", 	/* Shanghai */
+	"iot-as-mqtt.ap-southeast-1.aliyuncs.com",	 /* Singapore */
+	"iot-as-mqtt.ap-northeast-1.aliyuncs.com",	  /* Japan */
+	"iot-as-mqtt.us-west-1.aliyuncs.com",		 /* America */
+	"iot-as-mqtt.eu-central-1.aliyuncs.com",	 /* Germany */
+	NULL,										   /* Custom */
+};
+const char *g_infra_http_domain[IOTX_CLOUD_DOMAIN_MAX] = {
+	"iot-auth.cn-shanghai.aliyuncs.com",		 /* Shanghai */
+	"iot-auth.ap-southeast-1.aliyuncs.com", 	 /* Singapore */
+	"iot-auth.ap-northeast-1.aliyuncs.com",   /* Japan */
+	"iot-auth.us-west-1.aliyuncs.com",		   /* America */
+	"iot-auth.eu-central-1.aliyuncs.com",		  /* Germany */
+	NULL,										 /* Custom */
+};
 #endif
 
 #define USER_EXAMPLE_YIELD_TIMEOUT_MS (200)
@@ -573,8 +587,8 @@ int linkkit_main(void *paras)
 
     /* Choose Login Server, domain should be configured before IOT_Linkkit_Open() */
 #if USE_CUSTOME_DOMAIN
-    IOT_Ioctl(IOTX_IOCTL_SET_MQTT_DOMAIN, (void *)CUSTOME_DOMAIN_MQTT);
-    IOT_Ioctl(IOTX_IOCTL_SET_HTTP_DOMAIN, (void *)CUSTOME_DOMAIN_HTTP);
+    IOT_Ioctl(IOTX_IOCTL_SET_MQTT_DOMAIN, (void *)g_infra_mqtt_domain[IOTX_CLOUD_REGION_SINGAPORE]);
+    IOT_Ioctl(IOTX_IOCTL_SET_HTTP_DOMAIN, (void *)g_infra_http_domain[IOTX_CLOUD_REGION_SINGAPORE]);
 #else
     int domain_type = IOTX_CLOUD_REGION_SHANGHAI;
     IOT_Ioctl(IOTX_IOCTL_SET_DOMAIN, (void *)&domain_type);

@@ -155,6 +155,8 @@ int wifimgr_process_dev_ap_switchap_request(void *ctx, void *resource, void *rem
     char *str = NULL, *buf = NULL;
     char bssid[ETH_ALEN] = {0};
     char ssid_found = 0;
+	uint8_t isRandomKey = 0;
+	const char *p_ranodm_str = NULL;
     int ret = -1;
 
     static char dev_ap_switchap_parsed = 0;
@@ -187,6 +189,14 @@ int wifimgr_process_dev_ap_switchap_request(void *ctx, void *resource, void *rem
         dev_info[AWSS_DEV_AP_SWITCHA_RSP_LEN - 1] = '\0';
         HAL_Snprintf(msg, AWSS_DEV_AP_SWITCHA_RSP_LEN, AWSS_ACK_FMT, req_msg_id, 200, dev_info);
 
+		/*  get security version */
+		str_len = 0;
+		str = json_get_value_by_name(buf, len, "security", &str_len, 0);
+		if (str && str_len == 3 && !memcmp("2.0", str, str_len)) {
+			awss_trace("security ver = %.*s\r\n", str_len, str);
+			isRandomKey = 1;
+		}
+
         str_len = 0;
         str = json_get_value_by_name(buf, len, "ssid", &str_len, 0);
         awss_trace("ssid, len:%d, %s\r\n", str_len, str != NULL ? str : "NULL");
@@ -216,6 +226,7 @@ int wifimgr_process_dev_ap_switchap_request(void *ctx, void *resource, void *rem
         str = json_get_value_by_name(buf, len, "random", &str_len, 0);
         if (str && str_len ==  RANDOM_MAX_LEN * 2) {
             utils_str_to_hex(str, str_len, (unsigned char *)random, RANDOM_MAX_LEN);
+			p_ranodm_str = str;
         } else {
             HAL_Snprintf(msg, AWSS_DEV_AP_SWITCHA_RSP_LEN, AWSS_ACK_FMT, req_msg_id, -4, "\"random len error\"");
             success = 0;
@@ -232,8 +243,13 @@ int wifimgr_process_dev_ap_switchap_request(void *ctx, void *resource, void *rem
         if (str_len < (PLATFORM_MAX_PASSWD_LEN * 2) - 1) {
             char encoded[PLATFORM_MAX_PASSWD_LEN * 2 + 1] = {0};
             memcpy(encoded, str, str_len);
+			if (isRandomKey) {
+				softap_decrypt_password(encoded, p_ranodm_str, passwd);
+			}
+			else {
             aes_decrypt_string(encoded, passwd, str_len,
                     0, os_get_encrypt_type(), 1, random); /* 64bytes=2x32bytes */
+			}
         } else {
             HAL_Snprintf(msg, AWSS_DEV_AP_SWITCHA_RSP_LEN, AWSS_ACK_FMT, req_msg_id, -3, "\"passwd len error\"");
             success = 0;

@@ -15,6 +15,8 @@ $(NAME)_SOURCES += awss_ht40.c  awss_info.c     awss_statis.c        awss_dev_ap
 
 $(NAME)_COMPONENTS := libiot_utils libiot_log libiot_system iotx-hal libdev_bind
 
+$(NAME)_PREBUILT_LIBRARY := lib/$(HOST_ARCH)/awss_security.a
+
 ifeq ($(CONFIG_SYSINFO_DEVICE_NAME), ESP8266)
 GLOBAL_DEFINES += ESP8266_CONFIG
 endif
