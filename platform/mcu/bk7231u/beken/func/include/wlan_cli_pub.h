@@ -1,12 +1,11 @@
-/**
- *  UNPUBLISHED PROPRIETARY SOURCE CODE
+/*  UNPUBLISHED PROPRIETARY SOURCE CODE
  *  Copyright (c) 2016 BEKEN Inc.
  *
  *  The contents of this file may not be disclosed to third parties, copied or
  *  duplicated in any form, in whole or in part, without the prior written
  *  permission of BEKEN Corporation.
- *
  */
+ 
 #ifndef __WLAN_CLI_PUB_H__
 #define __WLAN_CLI_PUB_H__
 
@@ -27,6 +26,8 @@
 #define MAX_COMMANDS	64
 #define INBUF_SIZE      128
 #define OUTBUF_SIZE     2048
+
+#define LOG_SERVICE_BUFLEN            100
 
 /** Structure for registering CLI commands */
 struct cli_command

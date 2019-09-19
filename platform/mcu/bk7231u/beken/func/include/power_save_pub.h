@@ -171,7 +171,7 @@ extern void power_save_wait_timer_set(void );
     {                                                                   \
         power_save_rf_dtim_manual_do_wakeup();                          \
     }                                                                   \
-    else if (sctrl_if_rf_sleep())                                       \
+    if (sctrl_if_rf_sleep())                                            \
     {                                                                   \
         sctrl_rf_wakeup();                                              \
     }
@@ -181,16 +181,6 @@ extern void power_save_wait_timer_set(void );
     GLOBAL_INT_RESTORE();                                               \
     } while(0)
 
-#if CFG_USE_STA_PS
-#define CHECK_STA_RF_IF_IN_SLEEP()                                      \
-    do {                                                                \
-    GLOBAL_INT_DECLARATION();                                           \
-    GLOBAL_INT_DISABLE();                                               \
-    if (power_save_if_rf_sleep())                                       \
-    {                                                                   \
-        power_save_rf_dtim_manual_do_wakeup();                          \
-    }
-#endif
 
 #define CHECK_RF_IF_IN_SLEEP()                                      \
     do {                                                                \
