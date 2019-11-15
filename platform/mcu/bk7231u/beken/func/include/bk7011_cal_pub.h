@@ -49,6 +49,9 @@ extern void rwnx_cal_set_txpwr(UINT32 pwr_gain, UINT32 grate);
 extern UINT32 manual_cal_get_pwr_idx_shift(UINT32 rate, UINT32 bandwidth, UINT32 *pwr_gain);
 extern int manual_cal_get_txpwr(UINT32 rate, UINT32 channel, UINT32 bandwidth, UINT32 *pwr_gain);
 extern void manual_cal_save_txpwr(UINT32 rate, UINT32 channel, UINT32 pwr_gain);
+#if (CFG_SOC_NAME == SOC_BK7231U)
+extern void manual_cal_11b_2_ble(void);
+#endif
 extern UINT32 manual_cal_fitting_txpwr_tab(void);
 extern void manual_cal_show_txpwr_tab(void);
 extern UINT32 manual_cal_load_txpwr_tab_flash(void);
@@ -83,6 +86,7 @@ extern void bk7011_micopwr_config_tssi_read_prepare(void);
 extern void bk7011_micopwr_tssi_read(void);
 extern void bk7011_micopwr_tssi_show(void);
 extern void rwnx_cal_set_reg_adda_ldo(UINT32 val);
+extern void rwnx_cal_set_reg_rx_ldo(void);
 
 extern void manual_cal_tmp_pwr_init(UINT16 init_temp, UINT16 init_thre, UINT16 init_dist);
 extern void manual_cal_tmp_pwr_init_reg(UINT16 reg_mod, UINT16 reg_pa);

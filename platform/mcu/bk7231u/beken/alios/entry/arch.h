@@ -15,25 +15,6 @@
 
 #ifndef _ARCH_H_
 #define _ARCH_H_
-
-/**
- ****************************************************************************************
- * @defgroup PLATFORM_DRIVERS PLATFORM_DRIVERS
- * @ingroup MACSW
- * @brief Declaration of the ATMEL AT91SAM261 architecture API.
- * @{
- ****************************************************************************************
- */
-
-/**
- ****************************************************************************************
- * @defgroup ARCH_AT91SAM9261 ARCH_AT91SAM9261
- * @ingroup PLATFORM_DRIVERS
- * @brief Declaration of the ATMEL AT91SAM261 architecture API.
- * @{
- ****************************************************************************************
- */
-
 /*
  * INCLUDE FILES
  ****************************************************************************************
@@ -42,7 +23,6 @@
 #include "boot.h"
 #include "ll.h"
 #include "compiler.h"
-//#include "rwnx_config.h"
 #include "generic.h"
 
 /*

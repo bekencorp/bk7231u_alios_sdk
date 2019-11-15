@@ -5,9 +5,9 @@
 #define HARDWARE_REVISION   "V1.0"
 #define MODEL               "BK7231U"
 
-#define STDIO_UART 0
+#define STDIO_UART 1
 #define STDIO_UART_BUADRATE 115200
 
-#define BK_UART  1
+#define BK_UART  0
 #define BK_UART_BUADRATE 115200
 

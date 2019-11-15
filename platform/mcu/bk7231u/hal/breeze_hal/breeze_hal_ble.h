@@ -250,11 +250,44 @@ typedef struct
     /* Subject to add more hereafter in the future */
 } ais_adv_init_t;
 
+typedef struct
+{
+	uint16_t ntf_cfg;
+	uint16_t ind_cfg;
+} breeze_config_t;
+
+
 enum
 {
     AIS_BT_REASON_REMOTE_USER_TERM_CONN = 0,
     /* Add more supported reasons here. */
     AIS_BT_REASON_UNSPECIFIED = 0x0f
+};
+
+#define  FEB3_CHAR_DATA_LEN  20
+
+/// FEB3S Service Attributes Indexes
+enum
+{
+	FEB3S_IDX_SVC,	 
+	FEB3S_IDX_FED4_VAL_CHAR,
+	FEB3S_IDX_FED4_VAL_VALUE,
+	
+	FEB3S_IDX_FED5_VAL_CHAR,
+	FEB3S_IDX_FED5_VAL_VALUE,
+	
+	
+	FEB3S_IDX_FED7_VAL_CHAR,
+	FEB3S_IDX_FED7_VAL_VALUE,
+	
+	FEB3S_IDX_FED6_VAL_CHAR,
+	FEB3S_IDX_FED6_VAL_VALUE,
+	FFB3S_IDX_FED6_VAL_IND_CFG,
+	
+	FEB3S_IDX_FED8_VAL_CHAR,
+	FEB3S_IDX_FED8_VAL_VALUE,
+	FFB3S_IDX_FED8_VAL_NTF_CFG,
+	FEB3S_IDX_NB,
 };
 
 /**

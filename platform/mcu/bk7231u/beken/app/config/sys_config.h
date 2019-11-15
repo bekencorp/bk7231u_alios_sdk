@@ -34,7 +34,7 @@
 /*section 2-----function macro config-----*/
 #define CFG_TX_EVM_TEST                            1
 #define CFG_RX_SENSITIVITY_TEST                    1
-#define CFG_ROLE_LAUNCH                            0
+#define CFG_ROLE_LAUNCH                            1
 #define CFG_ENABLE_BUTTON                          0
 #define CFG_UDISK_MP3                              0
 #define CFG_EASY_FLASH                             0
@@ -106,7 +106,6 @@
 #define CFG_USE_DHCP                               1
 
 /*section 10-----patch*/
-#define CFG_BK7221_MDM_WATCHDOG_PATCH              0
 
 /*section 11-----temperature detect*/
 #define CFG_USE_TEMPERATURE_DETECT                 1

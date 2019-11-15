@@ -105,7 +105,7 @@ __INLINE uint32_t co_one_num(uint32_t n)
 	
 	while (n)
 	{
-		n &= n-1;
+		n &= n-1;  //Ω´n”În-1“ÏªÚ∏≥”Ën
 		count ++;
 	}
 	

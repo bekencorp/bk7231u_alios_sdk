@@ -42,13 +42,13 @@ int32_t hal_uart_init(uart_dev_t *uart)
 	
     if(uart->port == STDIO_UART)
     {
-        uart_hdl = ddev_open(UART2_DEV_NAME, &status, 0);
-		pdrv  = &_uart_drv[1];
+        uart_hdl = ddev_open(UART1_DEV_NAME, &status, 0);
+		pdrv  = &_uart_drv[0];
     }
     else
     {
-        uart_hdl = ddev_open(UART1_DEV_NAME, &status, 0);
-		pdrv  = &_uart_drv[0];
+        uart_hdl = ddev_open(UART2_DEV_NAME, &status, 0);
+		pdrv  = &_uart_drv[1];
     }
 
     if(pdrv->status == _UART_STATUS_CLOSED)
@@ -81,11 +81,11 @@ int32_t hal_uart_finalize(uart_dev_t *uart)
 
 	if(uart->port == STDIO_UART)
 	{
-		pdrv = &_uart_drv[1];
+		pdrv = &_uart_drv[0];
 	}
 	else
 	{
-		pdrv = &_uart_drv[0];
+		pdrv = &_uart_drv[1];
 	}
 
     rtos_deinit_semaphore(&pdrv->rx_semphr);
@@ -107,24 +107,24 @@ int32_t hal_uart_send(uart_dev_t *uart, const void *data, uint32_t size, uint32_
 
 	if(uart->port == STDIO_UART)
 	{
-		pdrv = &_uart_drv[1];
+		pdrv = &_uart_drv[0];
 	}
 	else
 	{
-		pdrv = &_uart_drv[0];
+		pdrv = &_uart_drv[1];
 	}
 	
     rtos_lock_mutex( &pdrv->tx_mutex );
 	
     if(uart->port == STDIO_UART)
     {
-        uart_hdl = ddev_open(UART2_DEV_NAME, &status, 0);
-		port = UART2_PORT;
+        uart_hdl = ddev_open(UART1_DEV_NAME, &status, 0);
+		port = UART1_PORT;
     }
     else
     {
-        uart_hdl = ddev_open(UART1_DEV_NAME, &status, 0);
-		port = UART1_PORT;
+        uart_hdl = ddev_open(UART2_DEV_NAME, &status, 0);
+		port = UART2_PORT;
     }
 
     for( i = 0; i < size; i++ )
@@ -172,13 +172,13 @@ int32_t hal_uart_recv_II(uart_dev_t *uart, void *data, uint32_t expect_size, uin
 
     if(uart->port == STDIO_UART)
     {
-        uart_hdl = ddev_open(UART2_DEV_NAME, &status, 0);
-		pdrv = &_uart_drv[1];
+        uart_hdl = ddev_open(UART1_DEV_NAME, &status, 0);
+		pdrv = &_uart_drv[0];
     }
     else
     {
-        uart_hdl = ddev_open(UART1_DEV_NAME, &status, 0);
-		pdrv = &_uart_drv[0];
+        uart_hdl = ddev_open(UART2_DEV_NAME, &status, 0);
+		pdrv = &_uart_drv[1];
     }
 
 	while(1)

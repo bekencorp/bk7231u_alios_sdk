@@ -115,6 +115,9 @@ typedef struct
     uart_flow_control_t       flow_control;
     uint8_t				      flags;	 /**< if set, UART can wake up MCU from stop mode, reference: @ref UART_WAKEUP_DISABLE and @ref UART_WAKEUP_ENABLE*/
 } bk_uart_config_t;
+
+extern int uart_print_port;
+
 /*******************************************************************************
 * Function Declarations
 *******************************************************************************/

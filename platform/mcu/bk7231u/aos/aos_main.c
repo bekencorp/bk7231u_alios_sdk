@@ -12,6 +12,9 @@
 #include "cmd_evm.h"
 #include "cmd_rx_sensitivity.h"
 #include "arm_arch.h"
+#include "board.h"
+#include "uart_pub.h"
+#include "ate_app.h"
 
 #define AOS_START_STACK 2048
 
@@ -266,6 +269,9 @@ static void sys_init(void)
 
 void sys_start(void)
 {
+	uart_print_port = STDIO_UART;
+	ate_gpio_port = GPIO0;
+	
     aos_init();
 
     soc_driver_init();

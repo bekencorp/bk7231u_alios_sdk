@@ -14,7 +14,8 @@ typedef enum{
     RF_CFG_TSSI_ITEM	= 0x77777777,
     RF_CFG_DIST_ITEM	= 0x88888888,
     RF_CFG_MODE_ITEM    = 0x99999999,
-    CHARGE_CONFIG_ITEM  = 0xaaaaaaaa
+
+    CHARGE_CONFIG_ITEM  = 0xaaaaaaaa,
 }NET_INFO_ITEM;
 
 typedef struct info_item_st

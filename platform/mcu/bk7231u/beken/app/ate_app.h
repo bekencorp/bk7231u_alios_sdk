@@ -18,7 +18,7 @@
 #define ATE_FATAL    null_prf
 #endif
 
-#define ATE_GPIO_ID            GPIO0   /* uart1 tx pin*/
+extern int ate_gpio_port;
 
 void ate_gpio_init(void);
 uint32_t ate_mode_check(void);

@@ -1,4 +1,5 @@
 #include "ble_pub.h"
+#include "ble_api.h"
 #include <stddef.h>
 #include <stdint.h>
 #include "breeze_hal_ble.h"
@@ -7,6 +8,56 @@ extern struct bd_addr common_default_bdaddr;
 static ais_bt_init_t ais_bt_init_info;
 static void (*g_indication_txdone)(uint8_t res);
 static stack_init_done_t stack_init_done;
+breeze_config_t breeze_cfg; 
+
+const bk_attm_desc_t feb3_att_db[FEB3S_IDX_NB] =
+{
+	// FEB3 Service Declaration
+	[FEB3S_IDX_SVC]                  =   {0x2800, BK_PERM_SET(RD, ENABLE), 0, 0},
+	// fed4  Characteristic Declaration
+	[FEB3S_IDX_FED4_VAL_CHAR]        =   {0x2803, BK_PERM_SET(RD, ENABLE), 0, 0},
+	// fed4  Characteristic Value
+	[FEB3S_IDX_FED4_VAL_VALUE]       =   {0xFED4, BK_PERM_SET(RD, ENABLE), BK_PERM_SET(RI, ENABLE), FEB3_CHAR_DATA_LEN},
+	
+	// fed5  Characteristic Declaration
+	[FEB3S_IDX_FED5_VAL_CHAR]        =   {0x2803, BK_PERM_SET(RD, ENABLE), 0, 0},
+	// fed5  Characteristic Value
+	[FEB3S_IDX_FED5_VAL_VALUE]       =   {0xFED5, BK_PERM_SET(WRITE_REQ, ENABLE)|BK_PERM_SET(RD, ENABLE), BK_PERM_SET(RI, ENABLE), FEB3_CHAR_DATA_LEN},
+	
+	// fed6  Characteristic Declaration
+	[FEB3S_IDX_FED6_VAL_CHAR]        =   {0x2803, BK_PERM_SET(RD, ENABLE), 0, 0},
+	// fed6  Characteristic Value
+	[FEB3S_IDX_FED6_VAL_VALUE]       =   {0xFED6, BK_PERM_SET(IND, ENABLE)|BK_PERM_SET(RD, ENABLE), BK_PERM_SET(RI, ENABLE), FEB3_CHAR_DATA_LEN},
+	[FFB3S_IDX_FED6_VAL_IND_CFG]     =   {0x2902, BK_PERM_SET(RD, ENABLE)|BK_PERM_SET(WRITE_REQ, ENABLE), 0, 0},
+	
+	// fed7  Characteristic Declaration
+	[FEB3S_IDX_FED7_VAL_CHAR]        =   {0x2803, BK_PERM_SET(RD, ENABLE), 0, 0},
+	// fed7  Characteristic Value
+	[FEB3S_IDX_FED7_VAL_VALUE]       =   {0xFED7, BK_PERM_SET(WRITE_COMMAND, ENABLE)|BK_PERM_SET(RD, ENABLE), BK_PERM_SET(RI, ENABLE), FEB3_CHAR_DATA_LEN},
+	
+	// fed8  Characteristic Declaration
+	[FEB3S_IDX_FED8_VAL_CHAR]        =   {0x2803, BK_PERM_SET(RD, ENABLE), 0, 0},
+	// fed8  Characteristic Value
+	[FEB3S_IDX_FED8_VAL_VALUE]       =   {0xFED8, BK_PERM_SET(NTF, ENABLE)|BK_PERM_SET(RD, ENABLE), BK_PERM_SET(RI, ENABLE), FEB3_CHAR_DATA_LEN},
+	[FFB3S_IDX_FED8_VAL_NTF_CFG]     =   {0x2902, BK_PERM_SET(RD, ENABLE)|BK_PERM_SET(WRITE_REQ, ENABLE), 0, 0},
+};/// Macro used to retrieve permission value from access and rights on attribute.
+
+static ble_err_t ble_create_db(void)
+{
+    ble_err_t status;
+    struct bk_ble_db_cfg ble_db_cfg;
+
+    ble_db_cfg.att_db = feb3_att_db;
+    ble_db_cfg.att_db_nb = FEB3S_IDX_NB;
+    ble_db_cfg.prf_task_id = 0;
+    ble_db_cfg.start_hdl = 0;
+    ble_db_cfg.svc_perm = 0;
+    ble_db_cfg.uuid = 0xFEB3;
+
+    status = bk_ble_create_db(&ble_db_cfg);
+
+	return status;
+}
 
 void ble_event_callback(ble_event_t event, void *param)
 {
@@ -15,10 +66,7 @@ void ble_event_callback(ble_event_t event, void *param)
 		case BLE_STACK_OK:		 
 			{	
 				bk_printf("BLE_STACK_OK\r\n");
-				if(stack_init_done)
-				{
-					stack_init_done(AIS_BT_REASON_REMOTE_USER_TERM_CONN);
-				}
+				ble_create_db();
 			}		  
 			break;		
 		case BLE_STACK_FAIL:		
@@ -27,6 +75,15 @@ void ble_event_callback(ble_event_t event, void *param)
 				if(stack_init_done)
 				{
 					stack_init_done(AIS_BT_REASON_UNSPECIFIED);
+				}
+			}		  
+			break;		
+		case BLE_CREATE_DB_OK:
+			{	
+				bk_printf("BLE_CREATE_DB_OK\r\n");			
+				if(stack_init_done)
+				{
+					stack_init_done(AIS_BT_REASON_REMOTE_USER_TERM_CONN);
 				}
 			} 	   
 			break;		 
@@ -64,7 +121,7 @@ void ble_event_callback(ble_event_t event, void *param)
 				bk_printf("BLE_TX_DONE\r\n");
 				if(g_indication_txdone)
 				{
-					g_indication_txdone(AIS_ERR_SUCCESS);
+					(*g_indication_txdone)(AIS_ERR_SUCCESS);
 				}
 			}
 			break;
@@ -74,42 +131,80 @@ void ble_event_callback(ble_event_t event, void *param)
 	}
 }
 
-void ble_write_callback(uint16_t char_id, uint8_t *data, uint8_t len)
+void ble_write_callback(write_req_t *param)
 {	 
-	if(char_id == 0xFED5)	  
+	if (param->att_idx == FFB3S_IDX_FED6_VAL_IND_CFG)
 	{ 	   
-		ais_bt_init_info.wc.on_write(data, len);    
+		uint16_t ind_cfg = (param->value[0]) | (param->value[1] << 8);
+		breeze_cfg.ind_cfg = ind_cfg;
+
+		if(ble_event_cb)
+		{
+			(*ble_event_cb)(BLE_CFG_INDICATE, (void *)(&(breeze_cfg.ind_cfg)));
+		}
+		//ble_event_callback(BLE_CFG_INDICATE, (void *)(&(breeze_cfg.ind_cfg)));
 	}	
-	else if(char_id == 0xFED7)	  
+	else if (param->att_idx == FFB3S_IDX_FED8_VAL_NTF_CFG)
 	{ 	   
-		ais_bt_init_info.wwnrc.on_write(data, len);	  
+		uint16_t ntf_cfg = (param->value[0]) | (param->value[1] << 8);
+		breeze_cfg.ntf_cfg = ntf_cfg;
+
+		if(ble_event_cb)
+		{
+			ble_event_cb(BLE_CFG_NOTIFY, (void *)(&(breeze_cfg.ntf_cfg)));
+		}
+		//ble_event_callback(BLE_CFG_NOTIFY, (void *)(&(breeze_cfg.ntf_cfg)));
+	}
+	else if (param->att_idx == FEB3S_IDX_FED5_VAL_VALUE)
+	{
+		ais_bt_init_info.wc.on_write(param->value, param->len);
+	}
+	else if (param->att_idx == FEB3S_IDX_FED7_VAL_VALUE)
+	{
+		ais_bt_init_info.wwnrc.on_write(param->value, param->len);
 	}    
 	else    
 	{		
-		bk_printf("ERROR UUID\r\n");	
+		bk_printf("Not support\r\n");
 	}
 }
 
-void ble_read_callback(uint16_t char_id, uint8_t *data, uint8_t len)
+uint8_t ble_read_callback(read_req_t *param)
 {    
-	if(char_id == 0xFED4)	
+	uint8_t len = 0;
+	
+	if (param->att_idx == FFB3S_IDX_FED6_VAL_IND_CFG)
+	{
+		param->value = breeze_cfg.ind_cfg;
+		len = 2;
+	}
+	else if (param->att_idx == FFB3S_IDX_FED8_VAL_NTF_CFG)
 	{		 
-		ais_bt_init_info.rc.on_read(data, len);	
+		param->value = breeze_cfg.ntf_cfg;
+		len = 2;
+	}
+	else if (param->att_idx == FEB3S_IDX_FED4_VAL_VALUE)
+	{
+		len = ais_bt_init_info.rc.on_read(param->value, param->size);
 	}	 
 	else	 
 	{		  
-		bk_printf("ERROR UUID\r\n");	  
+		bk_printf("Not Support\r\n");
 	}
+
+	return len;
 }
 
 ais_err_t ble_stack_init(ais_bt_init_t *info, stack_init_done_t init_done)
 {
     memcpy((uint8_t *)&ais_bt_init_info,(uint8_t *)info,sizeof(ais_bt_init_t));
+	memset(&breeze_cfg, 0x0, sizeof(breeze_config_t));
     
 	stack_init_done = init_done;
     ble_set_write_cb(ble_write_callback);    
 	ble_set_event_cb(ble_event_callback);    
 	ble_set_read_cb(ble_read_callback);    
+
     ble_activate(NULL);
 	return AIS_ERR_SUCCESS;
 }
@@ -126,7 +221,7 @@ ais_err_t ble_send_notification(uint8_t *p_data, uint16_t length)
 {
     ais_err_t status = AIS_ERR_SUCCESS;
 	
-    status = feb3_send_fed8_ntf_value(length,p_data,0xff);
+    status = bk_ble_send_ntf_value(length, p_data, 0, FEB3S_IDX_FED8_VAL_VALUE);
 
     bk_printf("status:%d\r\n", status);
 	
@@ -137,7 +232,7 @@ ais_err_t ble_send_indication(uint8_t *p_data, uint16_t length, void (*txdone)(u
 {
     ais_err_t status = AIS_ERR_SUCCESS;
 
-    status = feb3_send_fed6_ind_value(length,p_data,0xff);
+    status = bk_ble_send_ind_value(length, p_data, 0, FEB3S_IDX_FED6_VAL_VALUE);
 	
 	g_indication_txdone = txdone;
 	
@@ -147,7 +242,7 @@ ais_err_t ble_send_indication(uint8_t *p_data, uint16_t length, void (*txdone)(u
 void ble_disconnect(uint8_t reason)
 {
     bk_printf("ble_disconnect\r\n");
-    appm_disconnect(reason);
+    appm_disconnect(0x13);
 }
 
 ais_err_t ble_advertising_start(ais_adv_init_t *adv)
