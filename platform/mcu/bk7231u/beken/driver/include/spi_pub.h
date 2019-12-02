@@ -21,34 +21,40 @@ enum
     CMD_SPI_RXOVR_EN,
     CMD_SPI_TXOVR_EN,
     CMD_SPI_RXFIFO_CLR,
-    CMD_SPI_TXFIFO_CLR,
     CMD_SPI_RXINT_MODE,
     CMD_SPI_TXINT_MODE,
-    CMD_SPI_START_TRANS,
     CMD_SPI_INIT_MSTEN,
-    CMD_SPI_GET_BUSY
+    CMD_SPI_GET_BUSY,
+	CMD_SPI_SET_RX_CALLBACK,
+	CMD_SPI_SET_TX_NEED_WRITE_CALLBACK,
+	CMD_SPI_SET_TX_FINISH_CALLBACK,
+    CMD_SPI_DEINIT_MSTEN
 };
 
-typedef struct
-{
-    UINT8 tx_remain_data_cnt;
-    UINT8 rx_remain_data_cnt;
-    UINT8 *p_tx_buf;
-    UINT8 *p_rx_buf;
-    UINT8 trans_done;
-} spi_trans_t;
+#define USE_SPI_GPIO_14_17          (0)
+#define USE_SPI_GPIO_30_33          (1)
 
-typedef enum
+struct spi_message
 {
-    slave,
-    master
-} spi_msten;
+    void *send_buf;
+    UINT32 send_len;
 
-extern volatile spi_trans_t spi_trans;
+    void *recv_buf;
+    UINT32 recv_len;
+};
+
 /*******************************************************************************
 * Function Declarations
 *******************************************************************************/
 void spi_init(void);
 void spi_exit(void);
 void spi_isr(void);
+/*master api*/
+int bk_spi_master_init(UINT32 rate, UINT8 port, UINT32 mode);
+int bk_spi_master_xfer(struct spi_message *msg);
+int bk_spi_master_deinit(void);
+/*slave api*/
+int bk_spi_slave_init(UINT32 rate, UINT8 port, UINT32 mode);
+int bk_spi_slave_xfer(struct spi_message *msg);
+int bk_spi_slave_deinit(void);
 #endif //_SPI_PUB_H_

@@ -218,5 +218,12 @@ if AOS_APP_UDATA_CLOUD_DEMO
 endif
 
 
+source "app/example/spiapp/Config.in"
+if AOS_APP_SPIAPP
+    config AOS_BUILD_APP
+        default "spiapp"
+endif
+
+
 endchoice
 endif

@@ -34,7 +34,7 @@
 /*section 2-----function macro config-----*/
 #define CFG_TX_EVM_TEST                            1
 #define CFG_RX_SENSITIVITY_TEST                    1
-#define CFG_ROLE_LAUNCH                            1
+#define CFG_ROLE_LAUNCH                            0
 #define CFG_ENABLE_BUTTON                          0
 #define CFG_UDISK_MP3                              0
 #define CFG_EASY_FLASH                             0

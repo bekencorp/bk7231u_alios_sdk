@@ -73,6 +73,7 @@ $(NAME)_SOURCES += hal/gpio.c        \
                    hal/wifi_port.c   \
                    hal/beken_rhino.c \
                    hal/pwm.c \
+				   hal/spi.c \
                    hal_init/hal_init.c
 
 $(NAME)_SOURCES += hal/pwrmgmt_hal/board_cpu_pwr.c \
