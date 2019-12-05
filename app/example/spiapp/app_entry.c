@@ -21,6 +21,7 @@
 #include "aos/hal/spi.h"
 
 #define SPI_TEST_LENGTH		512
+#define SPI_BAUDRATE       (1* 1000 * 1000)
 
 static void handle_spi_test_cmd(char *pwbuf, int blen, int argc, char **argv)
 {
@@ -33,7 +34,6 @@ static void handle_spi_test_cmd(char *pwbuf, int blen, int argc, char **argv)
 	uint8_t *receive_data; 
 	
 	spi_dev.port = 0;
-	spi_dev.config.freq = 60;
 
     if(strcmp(argv[1], "master") == 0)
     {
@@ -48,6 +48,16 @@ static void handle_spi_test_cmd(char *pwbuf, int blen, int argc, char **argv)
 		aos_cli_printf("spi_test master/salve tx/rx len\r\n");
 	}
 	
+	if(argc == 5)
+	{
+		spi_dev.config.freq = atoi(argv[4]);
+	}
+	else
+	{
+		spi_dev.config.freq = SPI_BAUDRATE;
+	}
+	
+	aos_cli_printf("freq:%d\r\n",spi_dev.config.freq);
 	
 	hal_spi_init(&spi_dev);
 
